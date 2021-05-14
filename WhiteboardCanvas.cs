@@ -16,7 +16,7 @@ namespace NDI_Telestrator
 
         private double brushThickness = 1.0;
         private Color brushColor = Colors.Black;
-        private InkCanvas inkCanvas;
+        public InkCanvas inkCanvas;
 
         public WhiteboardCanvas()
         {

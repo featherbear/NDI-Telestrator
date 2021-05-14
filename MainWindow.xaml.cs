@@ -1,4 +1,5 @@
 ﻿using MahApps.Metro.Controls;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -57,6 +58,33 @@ namespace NDI_Telestrator
             //btn.BorderBrush = Brushes.Red;
 
             theWhiteboard.SetPenColor(btn.Foreground);
+        }
+        private void Btn_Save_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.SaveFileDialog saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            saveFileDialog1.Filter = "isf files (*.isf)|*.isf";
+
+            if (saveFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                FileStream fs = new FileStream(saveFileDialog1.FileName,
+                                               FileMode.Create);
+                theWhiteboard.inkCanvas.Strokes.Save(fs);
+                fs.Close();
+            }
+
+        }
+        private void Btn_Load_Click(object sender, RoutedEventArgs e)
+        {
+            Forms.OpenFileDialog openFileDialog1 = new Forms.OpenFileDialog();
+            openFileDialog1.Filter = "isf files (*.isf)|*.isf";
+
+            if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                FileStream fs = new FileStream(openFileDialog1.FileName,
+                                               FileMode.Open);
+                theWhiteboard.inkCanvas.Strokes = new System.Windows.Ink.StrokeCollection(fs);
+                fs.Close();
+            }
         }
 
         private void Btn_Delete_Click(object sender, RoutedEventArgs e)
