@@ -68,9 +68,6 @@
     <Reference Include="MaterialDesignThemes.Wpf, Version=2.4.0.1044, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\MaterialDesignThemes.2.4.0.1044\lib\net45\MaterialDesignThemes.Wpf.dll</HintPath>
     </Reference>
-    <Reference Include="NDILibDotNet2">
-      <HintPath>lib\NDILibDotNet2.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
@@ -147,7 +144,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="lib\NDILibDotNet2.dll" />
     <ContentWithTargetPath Include="lib\Processing.NDI.Lib.x64.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>Processing.NDI.Lib.x64.dll</TargetPath>
@@ -156,6 +152,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>Processing.NDI.Lib.x86.dll</TargetPath>
     </ContentWithTargetPath>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="lib\NDILibDotNet2\NDILibDotNet2.csproj">
+      <Project>{7195bfa6-8095-4618-96f6-8577db13fb43}</Project>
+      <Name>NDILibDotNet2</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
