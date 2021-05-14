@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Brushes = System.Windows.Media.Brushes;
+using Forms = System.Windows.Forms;
 
 namespace NDI_Telestrator
 {
@@ -17,16 +18,11 @@ namespace NDI_Telestrator
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
-
             switch (e.Key)
             {
                 case Key.Z:
-                    if (System.Windows.Input.Keyboard.Modifiers.HasFlag(System.Windows.Forms.Keys.Control))
-                    {
-                        theWhiteboard.Undo();
-                    }
+                    if ((Forms.Control.ModifierKeys & Forms.Keys.Control) == Forms.Keys.Control) theWhiteboard.Undo();
                     break;
-
             }
         }
 
