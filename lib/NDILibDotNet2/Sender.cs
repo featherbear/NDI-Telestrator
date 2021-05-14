@@ -145,11 +145,6 @@ namespace NewTek.NDI
             NDIlib.send_send_video_v2(_sendInstancePtr, ref videoFrame);
         }
 
-        public void Send(AudioFrame audioFrame)
-        {
-            Send(ref audioFrame._ndiAudioFrame);
-        }
-
         public void Send(ref NDIlib.audio_frame_v2_t audioFrame)
         {
             if (_sendInstancePtr == IntPtr.Zero)
