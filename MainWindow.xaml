@@ -34,8 +34,7 @@
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch">
                 <whiteboard:WhiteboardCanvas x:Name="theWhiteboard"
-                     Width="1280" Height="720"
-                    Background="White"
+                    Width="1280" Height="720"
                     ClipToBounds="True"
 					Cursor="Pen" />
             </NDI:NdiSendContainer>

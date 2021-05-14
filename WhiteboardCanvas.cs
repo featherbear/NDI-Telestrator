@@ -9,8 +9,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-// using Brushes = System.Windows.Media.Brushes;
-
 namespace NDI_Telestrator
 {
     class WhiteboardCanvas : System.Windows.Controls.Canvas
