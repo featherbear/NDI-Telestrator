@@ -5,7 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Brushes = System.Windows.Media.Brushes;
 
-namespace Whiteboard
+namespace NDI_Telestrator
 {
     public partial class MainWindow : MetroWindow
     {
@@ -17,12 +17,16 @@ namespace Whiteboard
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
+
             switch (e.Key)
             {
                 case Key.Z:
-                    if ((System.Windows.Forms.Control.ModifierKeys & System.Windows.Forms.Keys.Control) == System.Windows.Forms.Keys.Control)
+                    if (System.Windows.Input.Keyboard.Modifiers.HasFlag(System.Windows.Forms.Keys.Control))
+                    {
                         theWhiteboard.Undo();
+                    }
                     break;
+
             }
         }
 

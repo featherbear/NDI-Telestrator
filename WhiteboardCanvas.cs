@@ -1,15 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using Brushes = System.Windows.Media.Brushes;
-using Canvas = System.Windows.Controls.Canvas;
 
-namespace Whiteboard
+// using Brushes = System.Windows.Media.Brushes;
+
+namespace NDI_Telestrator
 {
-    class WhiteboardCanvas : Canvas
+    class WhiteboardCanvas : System.Windows.Controls.Canvas
     {
 
         private double brushThickness = 1.0;
@@ -24,7 +28,7 @@ namespace Whiteboard
         private void InitializeComponent()
         {
             inkCanvas = new InkCanvas();
-            inkCanvas.Background = Brushes.Transparent;
+            inkCanvas.Background = System.Windows.Media.Brushes.Transparent;
             SizeChanged += WhiteboardCanvas_SizeChanged;
 
             inkCanvas.UseCustomCursor = true;
