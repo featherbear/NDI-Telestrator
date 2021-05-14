@@ -28,13 +28,13 @@
 				BorderBrush="Black"
 				BorderThickness="1">
             <NDI:NdiSendContainer Name="NdiContainer"
-                                  NdiWidth="1280" NdiHeight="720"
+                                  NdiWidth="1920" NdiHeight="1080"
                                   NdiName="Whiteboard"
-                                  NdiFrameRateNumerator="30000"
+                                  NdiFrameRateNumerator="60000"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Stretch">
                 <whiteboard:WhiteboardCanvas x:Name="theWhiteboard"
-                    Width="1280" Height="720"
+                    Width="1920" Height="1080"
                     ClipToBounds="True"
 					Cursor="Pen" />
             </NDI:NdiSendContainer>
