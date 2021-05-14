@@ -53,6 +53,38 @@
             HorizontalAlignment="Center"
             Orientation="Horizontal">
             <Border
+                Name="Border_Btn_Load"
+                BorderBrush="Transparent"
+                BorderThickness="0,0,0,3">
+                <Button
+                    Name="Btn_Load"
+                    Width="30"
+                    Height="32"
+                    VerticalAlignment="Bottom"
+                    materialDesign:RippleAssist.IsCentered="True"
+                    Click="Btn_Load_Click"
+                    ClipToBounds="True"
+                    Style="{StaticResource MaterialDesignToolForegroundButton}">
+                    <materialDesign:PackIcon Kind="FolderOpen" />
+                </Button>
+            </Border>
+            <Border
+                Name="Border_Btn_Save"
+                BorderBrush="Transparent"
+                BorderThickness="0,0,0,3">
+                <Button
+                    Name="Btn_Save"
+                    Width="30"
+                    Height="32"
+                    VerticalAlignment="Bottom"
+                    materialDesign:RippleAssist.IsCentered="True"
+                    Click="Btn_Save_Click"
+                    ClipToBounds="True"
+                    Style="{StaticResource MaterialDesignToolForegroundButton}">
+                    <materialDesign:PackIcon Kind="ContentSave" />
+                </Button>
+            </Border>
+            <Border
                 Name="Border_Btn_Delete"
                 BorderBrush="Transparent"
                 BorderThickness="0,0,0,3">
