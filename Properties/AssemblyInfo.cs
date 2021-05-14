@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("NDI Telestrator")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyCopyright("Copyright © 2018 Gerard Braad <me@gbraad.nl>, 2021 Andrew Wong <hello@featherbear.cc>")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
