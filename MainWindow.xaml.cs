@@ -118,7 +118,7 @@ namespace NDI_Telestrator
 
         private void NDISources_Selected(object sender, SelectionChangedEventArgs e)
         {
-            theBackground.setSource((NewTek.NDI.Source) ((ComboBox)sender).SelectedItem);
+            theBackground.setSource((NewTek.NDI.Source)e.AddedItems[0]);
         }
     }
 }
