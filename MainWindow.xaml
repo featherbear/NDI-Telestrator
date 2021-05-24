@@ -7,28 +7,30 @@
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:whiteboard="clr-namespace:NDI_Telestrator"
     Title="Whiteboard"
-    Width="800"
-    Height="523.921"
+    Width="1280"
+    Height="800"
     BorderBrush="DarkSlateGray"
     BorderThickness="1"
     FontFamily="Montserrat"
     KeyDown="MainWindow_KeyDown"
     WindowStartupLocation="CenterScreen">
 
-    <Grid Margin="0,0,0,-6">
+    <Grid Margin="0,0,0,-6" HorizontalAlignment="Center">
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="50" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
         <Border
             Grid.Row="1"
             Margin="5"
+            VerticalAlignment="Center"
             BorderBrush="Black"
             BorderThickness="1">
             <Grid>
@@ -51,7 +53,7 @@
                     </NDI:NdiSendContainer>
                 </Grid>
                 <ContentControl x:Name="MainContent">
-                    <NDI:ReceiveView x:Name="abc" ReceiverName="Telestrator" />
+                    <NDI:ReceiveView x:Name="theBackground" ReceiverName="Telestrator" />
                 </ContentControl>
             </Grid>
         </Border>
