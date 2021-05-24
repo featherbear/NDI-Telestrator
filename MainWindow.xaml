@@ -15,6 +15,76 @@
     KeyDown="MainWindow_KeyDown"
     WindowStartupLocation="CenterScreen">
 
+    <Controls:MetroWindow.Flyouts>
+        <Controls:FlyoutsControl>
+
+            <Controls:Flyout
+                Width="300"
+                Header="About"
+                IsOpen="True"
+                Position="Right">
+
+                <StackPanel>
+
+                    <Border
+                        Name="Border_Btn_Load"
+                        BorderBrush="Transparent"
+                        BorderThickness="0,0,0,3">
+                        <Button
+                            Name="Btn_Load"
+                            Height="32"
+                            materialDesign:RippleAssist.IsCentered="True"
+                            Click="Btn_Load_Click"
+                            ClipToBounds="True"
+                            Style="{StaticResource BaseMetroWindowButtonStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="FolderOpen" />
+                                <TextBlock Text="Load Drawing" />
+                            </StackPanel>
+                        </Button>
+                    </Border>
+                    <Border
+                        Name="Border_Btn_Save"
+                        BorderBrush="Transparent"
+                        BorderThickness="0,0,0,3">
+                        <Button
+                            Name="Btn_Save"
+                            Height="32"
+                            VerticalAlignment="Bottom"
+                            materialDesign:RippleAssist.IsCentered="True"
+                            Click="Btn_Save_Click"
+                            ClipToBounds="True"
+                            Style="{StaticResource BaseMetroWindowButtonStyle}">
+
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="ContentSave" />
+                                <TextBlock Style="{StaticResource MetroTextBlock}" Text="Save Drawing" />
+                            </StackPanel>
+
+                        </Button>
+                    </Border>
+
+                    <StackPanel Margin="10">
+                        <TextBlock Style="{StaticResource MaterialDesignTitleTextBlock}" Text="NDI Source" />
+                        <Controls:SplitButton
+                            x:Name="NDISourcesDropdown"
+                            Margin="0,5,0,0"
+                            HorizontalContentAlignment="Left"
+                            Command="{Binding handleOpenNDISourceDropdown, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type whiteboard:MainWindow}}}"
+                            DisplayMemberPath="Name"
+                            ItemsSource="{Binding Sources, ElementName=theBackground}"
+                            SelectionChanged="NDISources_Selected">
+                            <Controls:SplitButton.Icon>
+                                <materialDesign:PackIcon Kind="Video" />
+                            </Controls:SplitButton.Icon>
+                        </Controls:SplitButton>
+                    </StackPanel>
+                </StackPanel>
+            </Controls:Flyout>
+        </Controls:FlyoutsControl>
+    </Controls:MetroWindow.Flyouts>
+
+
     <Grid Margin="0,0,0,-6" HorizontalAlignment="Center">
 
         <Grid.RowDefinitions>
@@ -66,49 +136,9 @@
             HorizontalAlignment="Center"
             Orientation="Horizontal">
 
-            <Controls:SplitButton
-                Margin="5"
-                HorizontalContentAlignment="Left"
-                DisplayMemberPath="Name"
-                ItemsSource="{Binding Sources, ElementName=theBackground}"
-                SelectionChanged="NDISources_Selected">
-                <Controls:SplitButton.Icon>
-                    <materialDesign:PackIcon Kind="Video" />
-                </Controls:SplitButton.Icon>
-            </Controls:SplitButton>
+            <!--  selector here  -->
 
-            <Border
-                Name="Border_Btn_Load"
-                BorderBrush="Transparent"
-                BorderThickness="0,0,0,3">
-                <Button
-                    Name="Btn_Load"
-                    Width="30"
-                    Height="32"
-                    VerticalAlignment="Bottom"
-                    materialDesign:RippleAssist.IsCentered="True"
-                    Click="Btn_Load_Click"
-                    ClipToBounds="True"
-                    Style="{StaticResource MaterialDesignToolForegroundButton}">
-                    <materialDesign:PackIcon Kind="FolderOpen" />
-                </Button>
-            </Border>
-            <Border
-                Name="Border_Btn_Save"
-                BorderBrush="Transparent"
-                BorderThickness="0,0,0,3">
-                <Button
-                    Name="Btn_Save"
-                    Width="30"
-                    Height="32"
-                    VerticalAlignment="Bottom"
-                    materialDesign:RippleAssist.IsCentered="True"
-                    Click="Btn_Save_Click"
-                    ClipToBounds="True"
-                    Style="{StaticResource MaterialDesignToolForegroundButton}">
-                    <materialDesign:PackIcon Kind="ContentSave" />
-                </Button>
-            </Border>
+
             <Border
                 Name="Border_Btn_Delete"
                 BorderBrush="Transparent"

@@ -1,11 +1,11 @@
-﻿using MahApps.Metro.Controls;
+using MahApps.Metro.Controls;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using Brushes = System.Windows.Media.Brushes;
 using Forms = System.Windows.Forms;
+
 
 namespace NDI_Telestrator
 {
@@ -119,6 +119,14 @@ namespace NDI_Telestrator
         private void NDISources_Selected(object sender, SelectionChangedEventArgs e)
         {
             theBackground.setSource((NewTek.NDI.Source)e.AddedItems[0]);
+        }
+
+        public ICommand handleOpenNDISourceDropdown 
+        {
+            get
+            {
+                return new SimpleCommand(o => NDISourcesDropdown.IsExpanded = true);
+            }
         }
     }
 }
