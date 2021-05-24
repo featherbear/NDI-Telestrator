@@ -467,6 +467,9 @@ namespace NewTek.NDI.WPF
 
                     break;
 
+                    case NDIlib.frame_type_e.frame_type_audio:
+                        NDIlib.recv_free_audio_v2(_recvInstancePtr, ref audioFrame);
+                        break;
                 // Metadata
                 case NDIlib.frame_type_e.frame_type_metadata:
 
