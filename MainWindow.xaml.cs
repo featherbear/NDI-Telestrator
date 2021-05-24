@@ -15,6 +15,19 @@ namespace NDI_Telestrator
         public MainWindow()
         {
             InitializeComponent();
+
+
+            NewTek.NDI.Finder a = new NewTek.NDI.Finder(true);
+            a.Sources.CollectionChanged += (obj, newSources) =>
+
+            {
+                System.Console.WriteLine(newSources.NewItems[0]);
+                this.Dispatcher.Invoke(() =>
+                {
+                    abc.ConnectedSource = ((NewTek.NDI.Source)newSources.NewItems[0]);
+                });
+            };
+
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)

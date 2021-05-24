@@ -14,7 +14,9 @@
     FontFamily="Montserrat"
     KeyDown="MainWindow_KeyDown"
     WindowStartupLocation="CenterScreen">
+
     <Grid Margin="0,0,0,-6">
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -29,21 +31,29 @@
             Margin="5"
             BorderBrush="Black"
             BorderThickness="1">
-            <NDI:NdiSendContainer
-                Name="NdiContainer"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
-                NdiFrameRateNumerator="60000"
-                NdiHeight="1080"
-                NdiName="Whiteboard"
-                NdiWidth="1920">
-                <whiteboard:WhiteboardCanvas
-                    x:Name="theWhiteboard"
-                    Width="1920"
-                    Height="1080"
-                    ClipToBounds="True"
-                    Cursor="Pen" />
-            </NDI:NdiSendContainer>
+            <Grid>
+                <Grid Panel.ZIndex="1000">
+                    <NDI:NdiSendContainer
+                        Name="NdiContainer"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        NdiFrameRateNumerator="30000"
+                        NdiHeight="1080"
+                        NdiName="Telestrator"
+                        NdiWidth="1920">
+                        <whiteboard:WhiteboardCanvas
+                            x:Name="theWhiteboard"
+                            Width="1920"
+                            Height="1080"
+                            ClipToBounds="True"
+                            Cursor="Pen" />
+
+                    </NDI:NdiSendContainer>
+                </Grid>
+                <ContentControl x:Name="MainContent">
+                    <NDI:ReceiveView x:Name="abc" ReceiverName="Telestrator" />
+                </ContentControl>
+            </Grid>
         </Border>
 
         <StackPanel
@@ -368,4 +378,7 @@
         </StackPanel>
 
     </Grid>
+
+
+
 </Controls:MetroWindow>
