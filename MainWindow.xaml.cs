@@ -116,7 +116,7 @@ namespace NDI_Telestrator
             theWhiteboard.SetPenThickness(5.0);
         }
 
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void NDISources_Selected(object sender, SelectionChangedEventArgs e)
         {
             theBackground.setSource((NewTek.NDI.Source) ((ComboBox)sender).SelectedItem);
         }
