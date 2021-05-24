@@ -53,7 +53,7 @@
                     </NDI:NdiSendContainer>
                 </Grid>
                 <ContentControl x:Name="MainContent">
-                    <NDI:ReceiveView x:Name="theBackground" ReceiverName="Telestrator" />
+                    <whiteboard:BackgroundView x:Name="theBackground" ReceiverName="Telestrator" />
                 </ContentControl>
             </Grid>
         </Border>
@@ -378,6 +378,13 @@
             </Border>
 
         </StackPanel>
+        <ComboBox
+            Grid.Row="2"
+            Width="120"
+            Margin="253,10,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            ItemsSource="{Binding Sources, ElementName=theBackground}" SelectionChanged="ComboBox_SelectionChanged" />
 
     </Grid>
 
