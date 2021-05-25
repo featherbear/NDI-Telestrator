@@ -17,29 +17,29 @@ namespace NDI_Telestrator
 
         public static void Btn_Save_Click(object sender, RoutedEventArgs e)
         {
-            System.Windows.Forms.SaveFileDialog saveDialog = new System.Windows.Forms.SaveFileDialog();
-            saveDialog.Filter = "isf files (*.isf)|*.isf";
+            //System.Windows.Forms.SaveFileDialog saveDialog = new System.Windows.Forms.SaveFileDialog();
+            //saveDialog.Filter = "isf files (*.isf)|*.isf";
 
-            if (saveDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                FileStream fs = new FileStream(saveDialog.FileName, FileMode.Create);
-                whiteboard.inkCanvas.Strokes.Save(fs);
-                fs.Close();
-            }
+            //if (saveDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            //{
+            //    FileStream fs = new FileStream(saveDialog.FileName, FileMode.Create);
+            //    whiteboard.inkCanvas.Strokes.Save(fs);
+            //    fs.Close();
+            //}
 
         }
         public static void Btn_Load_Click(object sender, RoutedEventArgs e)
         {
-            System.Windows.Forms.OpenFileDialog openDialog = new System.Windows.Forms.OpenFileDialog();
-            openDialog.Filter = "isf files (*.isf)|*.isf";
+            //System.Windows.Forms.OpenFileDialog openDialog = new System.Windows.Forms.OpenFileDialog();
+            //openDialog.Filter = "isf files (*.isf)|*.isf";
 
-            if (openDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                FileStream fs = new FileStream(openDialog.FileName, FileMode.Open);
-                whiteboard.inkCanvas.Strokes = new System.Windows.Ink.StrokeCollection(fs);
-                fs.Close();
-                whiteboard.updateUndoRedoStates();
-            }
+            //if (openDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            //{
+            //    FileStream fs = new FileStream(openDialog.FileName, FileMode.Open);
+            //    whiteboard.inkCanvas.Strokes = new System.Windows.Ink.StrokeCollection(fs);
+            //    fs.Close();
+            //    whiteboard.updateUndoRedoStates();
+            //}
         }
 
         public static void onBtnWhiteClick(object sender, RoutedEventArgs e)
@@ -114,20 +114,24 @@ namespace NDI_Telestrator
         }
 
         // TODO: Move somewhere else
-        public static BitmapFrame Draw(System.Windows.Ink.StrokeCollection strokes, Brush background = null)
+        public static BitmapFrame Draw(System.Windows.Ink.StrokeCollection[] layers, Brush background = null)
         {
             DrawingVisual drawingVisual = new DrawingVisual();
             using (DrawingContext drawingContext = drawingVisual.RenderOpen())
             {
                 if (background != null)
                 {
-                    drawingContext.DrawRectangle(background, null, new Rect(0, 0, (int)whiteboard.inkCanvas.Width, (int)whiteboard.inkCanvas.Height));
+                    drawingContext.DrawRectangle(background, null, new Rect(0, 0, (int)whiteboard.activeInkCanvas.Width, (int)whiteboard.activeInkCanvas.Height));
 
                 }
-                strokes.Draw(drawingContext);
+
+                foreach (System.Windows.Ink.StrokeCollection strokes in layers)
+                {
+                    strokes.Draw(drawingContext);
+                };
                 drawingContext.Close();
 
-                RenderTargetBitmap rtb = new RenderTargetBitmap((int)whiteboard.inkCanvas.Width, (int)whiteboard.inkCanvas.Height, 96d, 96d, System.Windows.Media.PixelFormats.Default);
+                RenderTargetBitmap rtb = new RenderTargetBitmap((int)whiteboard.activeInkCanvas.Width, (int)whiteboard.activeInkCanvas.Height, 96d, 96d, System.Windows.Media.PixelFormats.Default);
                 rtb.Render(drawingVisual);
 
                 BitmapFrame B = BitmapFrame.Create(rtb);
@@ -138,7 +142,7 @@ namespace NDI_Telestrator
         public static void Btn_Screenshot_Click(object sender, RoutedEventArgs e)
         {
             Enums.ScreenshotFormatTypes type = Options.screenshotFormatType;
-            
+
             String saveFileName = "Screenshot " + DateTime.Now.ToString("yyyyMMdd-HHmmss");
 
             if (!Options.quickSaveEnabled)
@@ -166,7 +170,9 @@ namespace NDI_Telestrator
             BitmapFrame b;
             if (type == Enums.ScreenshotFormatTypes.JPG)
             {
-                b = Draw(whiteboard.inkCanvas.Strokes, whiteboard.Background == Brushes.Transparent ? Brushes.White : whiteboard.Background);
+
+
+                b = Draw(whiteboard.inkCanvases.Select(c => c.Strokes).ToArray(), whiteboard.Background == Brushes.Transparent ? Brushes.White : whiteboard.Background);
                 JpegBitmapEncoder j = new JpegBitmapEncoder();
                 j.Frames.Add(b);
 
@@ -178,7 +184,7 @@ namespace NDI_Telestrator
             }
             else
             {
-                b = Draw(whiteboard.inkCanvas.Strokes, Brushes.Transparent);
+                b = Draw(whiteboard.inkCanvases.Select(c => c.Strokes).ToArray(), Brushes.Transparent);
                 PngBitmapEncoder p = new PngBitmapEncoder();
                 p.Frames.Add(b);
 
