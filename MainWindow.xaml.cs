@@ -26,24 +26,29 @@ namespace NDI_Telestrator
             InkControls.whiteboard = theWhiteboard;
             optionsDialogue.background = theBackground;
 
-            // Send an NDI frame on every draw event
+            // Send background updates every 250ms
+            System.Windows.Threading.DispatcherTimer backgroundUpdateTimer = new System.Windows.Threading.DispatcherTimer();
+            backgroundUpdateTimer.Interval = TimeSpan.FromMilliseconds(250);
+            backgroundUpdateTimer.Tick += requestNDI;
+
+            // Send canvas updates every 10ms
+            System.Windows.Threading.DispatcherTimer canvasUpdateTimer = new System.Windows.Threading.DispatcherTimer();
+            canvasUpdateTimer.Interval = TimeSpan.FromMilliseconds(10);
+            canvasUpdateTimer.Tick += requestNDI;
+
             theWhiteboard.GotMouseCapture += (a, b) =>
             {
-                theWhiteboard.MouseMove += requestNDI;
-                theWhiteboard.StylusMove += requestNDI;
+                backgroundUpdateTimer.Stop();
+                canvasUpdateTimer.Start();
             };
+            
             theWhiteboard.LostMouseCapture += (a, b) =>
             {
-                theWhiteboard.MouseMove -= requestNDI;
-                theWhiteboard.StylusMove -= requestNDI;
+                backgroundUpdateTimer.Start();
+                canvasUpdateTimer.Stop();
             };
 
-            // Send an NDI frame every 250ms
-            System.Windows.Threading.DispatcherTimer timer = new System.Windows.Threading.DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(0.25);
-            timer.Tick += requestNDI;
-            timer.Start();
-
+            backgroundUpdateTimer.Start();
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)

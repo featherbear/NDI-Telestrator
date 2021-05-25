@@ -79,6 +79,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompositionTargetEx.cs" />
     <Compile Include="Finder.cs" />
     <Compile Include="Pinvoke\Processing.NDI.deprecated.Interop.cs" />
     <Compile Include="Pinvoke\Processing.NDI.Recv.ex.Interop.cs" />
