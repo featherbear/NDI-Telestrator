@@ -47,7 +47,6 @@
                         <NDI:NdiSendContainer
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
-                            IsSendPaused="True"
                             NdiFrameRateNumerator="30000"
                             NdiHeight="1080"
                             NdiName="Telestrator"

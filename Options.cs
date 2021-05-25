@@ -79,7 +79,7 @@ namespace NDI_Telestrator
         }
 
 
-        private static bool _quickSaveEnabled = false;
+        private static bool _quickSaveEnabled = true;
         public static bool quickSaveEnabled
         {
             get

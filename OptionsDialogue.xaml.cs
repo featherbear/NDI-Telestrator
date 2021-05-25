@@ -107,6 +107,9 @@ namespace NDI_Telestrator
             InkControls.Btn_Save_Click(sender, e);
         }
 
-
+        private void ToggleSwitch_IsCheckedChanged(object sender, EventArgs e)
+        {
+            Options.quickSaveEnabled = !Options.quickSaveEnabled;
+        }
     }
 }

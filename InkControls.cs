@@ -115,6 +115,7 @@ namespace NDI_Telestrator
             whiteboard.Redo();
         }
 
+        // TODO: Move somewhere else
         public static BitmapFrame Draw(System.Windows.Ink.StrokeCollection strokes, Brush background = null)
         {
             DrawingVisual drawingVisual = new DrawingVisual();
@@ -147,19 +148,24 @@ namespace NDI_Telestrator
                 saveDialog.Filter = "JPG|*.jpg|PNG|*.png";
                 saveDialog.FilterIndex = (int)Options.screenshotFormatType + 1; // Indexing is 1-based
 
-                if (saveDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
+                System.Windows.Forms.DialogResult result = saveDialog.ShowDialog();
+                if (result != System.Windows.Forms.DialogResult.OK) return;
 
+                saveFileName = saveDialog.FileName;
                 type = (Enums.ScreenshotFormatTypes)(saveDialog.FilterIndex - 1);
 
                 string lowerCase = saveDialog.FileName.ToLower();
                 if (lowerCase.EndsWith(".jpg")) type = Enums.ScreenshotFormatTypes.JPG;
                 else if (lowerCase.EndsWith(".png")) type = Enums.ScreenshotFormatTypes.PNG;
-                else saveFileName = saveDialog.FileName + (saveDialog.FilterIndex == 1 ? ".jpg" : ".png");
+                else saveFileName += (saveDialog.FilterIndex == 1 ? ".jpg" : ".png");
             }
             else
             {
                 saveFileName += type == Enums.ScreenshotFormatTypes.JPG ? ".jpg" : ".png";
             }
+
+            Console.WriteLine(type);
+            Console.WriteLine(saveFileName);
 
             BitmapFrame b;
             if (type == Enums.ScreenshotFormatTypes.JPG)
