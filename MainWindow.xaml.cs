@@ -24,6 +24,7 @@ namespace NDI_Telestrator
         {
             InitializeComponent();
             InkControls.whiteboard = theWhiteboard;
+            optionsDialogue.whiteboard = theWhiteboard;
             optionsDialogue.background = theBackground;
 
             // Send background updates every 250ms
