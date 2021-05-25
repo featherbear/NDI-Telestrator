@@ -4,9 +4,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:enums="clr-namespace:NDI_Telestrator.Enums"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:whiteboard="clr-namespace:NDI_Telestrator"
+    xmlns:telestrator="clr-namespace:NDI_Telestrator"
     x:Name="optionsDialogue"
     Width="300"
     d:DesignHeight="450"
@@ -82,8 +83,9 @@
                 Margin="0,5,0,0"
                 HorizontalContentAlignment="Left"
                 Command="{Binding handleOpenScreenshotFormatDropdown, ElementName=optionsDialogue}"
-                ItemsSource="{Binding ScreenshotFormatEnum, ElementName=optionsDialogue}"
-                SelectionChanged="ScreenshotFormat_Selected" />
+                DisplayMemberPath="DisplayName"
+                ItemsSource="{enums:EnumToItemsSource {x:Type enums:ScreenshotFormatTypes}}"
+                SelectedIndex="{Binding bindScreenshotFormatTypeIndex, ElementName=optionsDialogue}" />
 
             <StackPanel Orientation="Horizontal">
                 <Controls:ToggleSwitch OffLabel="Disabled" OnLabel="Enabled" />

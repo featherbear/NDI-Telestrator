@@ -48,9 +48,11 @@ namespace NDI_Telestrator
         // public InkControls controls { get; set; }
         //        public BackgroundView background { get; set; }
 
+
         public OptionsDialogue()
         {
             InitializeComponent();
+
         }
 
         private void NDISources_Selected(object sender, SelectionChangedEventArgs e)
@@ -69,14 +71,20 @@ namespace NDI_Telestrator
 
         #region Screenshot Options
 
-        public static List<String> ScreenshotFormatEnum { get { return new List<String> { "JPG", "PNG" }; } }
 
-
-        private void ScreenshotFormat_Selected(object sender, SelectionChangedEventArgs e)
+        public int bindScreenshotFormatTypeIndex
         {
-            System.Console.WriteLine(e);
+            get
+            {
+                return (int)Options.screenshotFormatType;
+            }
 
+            set
+            {
+                Options.screenshotFormatType = (Enums.ScreenshotFormatTypes)value;
+            }
         }
+
 
         public ICommand handleOpenScreenshotFormatDropdown
         {

@@ -97,10 +97,11 @@
     </ApplicationDefinition>
     <Compile Include="BackgroundView.cs" />
     <Compile Include="InkControls.cs" />
+    <Compile Include="Options.cs" />
     <Compile Include="OptionsDialogue.xaml.cs">
       <DependentUpon>OptionsDialogue.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SimpleCommand.cs" />
+    <Compile Include="helpers\SimpleCommand.cs" />
     <Compile Include="WhiteboardCanvas.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
