@@ -9,7 +9,7 @@ using NewTek.NDI;
 
 namespace NDI_Telestrator
 {
-    class BackgroundView : NewTek.NDI.WPF.ReceiveView
+    public class BackgroundView : NewTek.NDI.WPF.ReceiveView
     {
         private Finder NDIFinder = new Finder(true);
 

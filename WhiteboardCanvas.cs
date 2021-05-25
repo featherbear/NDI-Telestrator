@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -12,7 +12,7 @@ using System.Windows.Shapes;
 
 namespace NDI_Telestrator
 {
-    class WhiteboardCanvas : System.Windows.Controls.Canvas, INotifyPropertyChanged
+    public class WhiteboardCanvas : System.Windows.Controls.Canvas, INotifyPropertyChanged
     {
 
         private double brushThickness = 1.0;
@@ -52,10 +52,11 @@ namespace NDI_Telestrator
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+        public event PropertyChangedEventHandler PropertyChanged;
+
 
         private Queue<Stroke> redoQueue = new Queue<Stroke>();
 
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public WhiteboardCanvas()
         {
@@ -75,7 +76,9 @@ namespace NDI_Telestrator
             };
 
 
+            this.Background = System.Windows.Media.Brushes.Transparent;
             inkCanvas.Background = System.Windows.Media.Brushes.Transparent;
+
             SizeChanged += WhiteboardCanvas_SizeChanged;
 
             inkCanvas.UseCustomCursor = true;
@@ -97,8 +100,35 @@ namespace NDI_Telestrator
             inkDA.Width = size;
             inkDA.Height = size;
             inkDA.Color = color;
+            // inkDA.FitToCurve = true;
+            inkDA.StylusTip = StylusTip.Rectangle;
+            inkDA.IsHighlighter = true;
+            // inkDA.IgnorePressure
+
             inkCanvas.DefaultDrawingAttributes = inkDA;
+            __setPenAttributes(color, size);
         }
+
+
+        private void __setPenAttributes(Color color, double size)
+        {
+            // DrawingAttributes inkDA = new DrawingAttributes();
+            // inkCanvas.EditingMode = InkCanvasEditingMode.EraseByPoint;
+            inkCanvas.EditingMode = InkCanvasEditingMode.EraseByStroke;
+
+            //inkCanvas.DefaultDrawingAttributes = inkDA;
+
+
+
+            inkCanvas.Select(new StrokeCollection());
+        }
+
+        private void TODO()
+        {
+            // Layers
+        }
+
+
 
         public void SetPenColor(Color color)
         {
@@ -139,7 +169,7 @@ namespace NDI_Telestrator
             }
         }
 
-        private void updateUndoRedoStates()
+        public void updateUndoRedoStates()
         {
             hasUndoContent = inkCanvas.Strokes.Count > 0;
             hasRedoContent = redoQueue.Count > 0;
