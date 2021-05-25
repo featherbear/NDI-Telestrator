@@ -159,7 +159,6 @@ namespace NewTek.NDI.WPF
             sendThread = new Thread(SendThreadProc) { IsBackground = true, Name = "WpfNdiSendThread" };
             sendThread.Start();
 
-            //CompositionTargetEx.FrameUpdating += OnCompositionTargetRendering;
             // CompositionTarget.Rendering += OnCompositionTargetRendering ;
 
             // Not required, but "correct". (see the SDK documentation)
