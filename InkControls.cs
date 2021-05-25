@@ -17,12 +17,12 @@ namespace NDI_Telestrator
 
         public static void Btn_Save_Click(object sender, RoutedEventArgs e)
         {
-            System.Windows.Forms.SaveFileDialog saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            saveFileDialog1.Filter = "isf files (*.isf)|*.isf";
+            System.Windows.Forms.SaveFileDialog saveDialog = new System.Windows.Forms.SaveFileDialog();
+            saveDialog.Filter = "isf files (*.isf)|*.isf";
 
-            if (saveFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            if (saveDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                FileStream fs = new FileStream(saveFileDialog1.FileName,
+                FileStream fs = new FileStream(saveDialog.FileName,
                                                FileMode.Create);
                 whiteboard.inkCanvas.Strokes.Save(fs);
                 fs.Close();
@@ -31,12 +31,12 @@ namespace NDI_Telestrator
         }
         public static void Btn_Load_Click(object sender, RoutedEventArgs e)
         {
-            System.Windows.Forms.OpenFileDialog openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            openFileDialog1.Filter = "isf files (*.isf)|*.isf";
+            System.Windows.Forms.OpenFileDialog openDialog = new System.Windows.Forms.OpenFileDialog();
+            openDialog.Filter = "isf files (*.isf)|*.isf";
 
-            if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            if (openDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                FileStream fs = new FileStream(openFileDialog1.FileName,
+                FileStream fs = new FileStream(openDialog.FileName,
                                                FileMode.Open);
                 whiteboard.inkCanvas.Strokes = new System.Windows.Ink.StrokeCollection(fs);
                 fs.Close();
@@ -138,32 +138,53 @@ namespace NDI_Telestrator
 
         public static void Btn_Screenshot_Click(object sender, RoutedEventArgs e)
         {
+            Enums.ScreenshotFormatTypes type = Options.screenshotFormatType;
+            String saveFileName = "save";
 
-            // TODO: Check the default format
-
-            System.Console.WriteLine(whiteboard.Background);
-            BitmapFrame b = Draw(whiteboard.inkCanvas.Strokes, whiteboard.Background == Brushes.Transparent ? Brushes.White : whiteboard.Background);
-
-            // TODO: Background
-
-            JpegBitmapEncoder j = new JpegBitmapEncoder();
-            j.Frames.Add(b);
-            using (var file = new FileStream(@"test.jpg", FileMode.Create))
+            if (!Options.quickSaveEnabled)
             {
+                System.Windows.Forms.SaveFileDialog saveDialog = new System.Windows.Forms.SaveFileDialog();
+                saveDialog.Filter = "JPG|*.jpg|PNG|*.png";
+                saveDialog.FilterIndex = (int)Options.screenshotFormatType + 1; // Indexing is 1-based
 
-                j.Save(file);
+                if (saveDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
+
+                type = (Enums.ScreenshotFormatTypes)(saveDialog.FilterIndex - 1);
+
+                string lowerCase = saveDialog.FileName.ToLower();
+                if (lowerCase.EndsWith(".jpg")) type = Enums.ScreenshotFormatTypes.JPG;
+                else if (lowerCase.EndsWith(".png")) type = Enums.ScreenshotFormatTypes.PNG;
+                else saveFileName = saveDialog.FileName + (saveDialog.FilterIndex == 1 ? ".jpg" : ".png");
+            }
+            else
+            {
+                saveFileName += type == Enums.ScreenshotFormatTypes.JPG ? ".jpg" : ".png";
             }
 
-            PngBitmapEncoder p = new PngBitmapEncoder();
-            p.Frames.Add(b);
-            using (var file = new FileStream(@"test.png", FileMode.Create))
+            BitmapFrame b;
+            if (type == Enums.ScreenshotFormatTypes.JPG)
             {
-                p.Save(file);
+                b = Draw(whiteboard.inkCanvas.Strokes, whiteboard.Background == Brushes.Transparent ? Brushes.White : whiteboard.Background);
+                JpegBitmapEncoder j = new JpegBitmapEncoder();
+                j.Frames.Add(b);
+
+                using (var file = new FileStream(saveFileName, FileMode.Create))
+                {
+                    j.Save(file);
+                }
+
             }
+            else
+            {
+                b = Draw(whiteboard.inkCanvas.Strokes, Brushes.Transparent);
+                PngBitmapEncoder p = new PngBitmapEncoder();
+                p.Frames.Add(b);
 
-
-
+                using (var file = new FileStream(saveFileName, FileMode.Create))
+                {
+                    p.Save(file);
+                }
+            }
         }
-
     }
 }

@@ -63,6 +63,7 @@ namespace NDI_Telestrator
         public static event PropertyChangedEventHandler PropertyChanged;
         #endregion
 
+
         private static ScreenshotFormatTypes _screenshotFormatType = ScreenshotFormatTypes.PNG;
         public static ScreenshotFormatTypes screenshotFormatType
         {
@@ -77,6 +78,20 @@ namespace NDI_Telestrator
             }
         }
 
+
+        private static bool _quickSaveEnabled = false;
+        public static bool quickSaveEnabled
+        {
+            get
+            {
+                return _quickSaveEnabled;
+            }
+            set
+            {
+                _quickSaveEnabled = value;
+                OnPropertyChanged();
+            }
+        }
 
     }
 }

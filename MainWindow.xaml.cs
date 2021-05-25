@@ -53,7 +53,7 @@ namespace NDI_Telestrator
         #region Button Controls
         private void Btn_Screenshot_Click(object sender, RoutedEventArgs e)
         {
-            // InkControls.Btn_Screenshot_Click()
+            InkControls.Btn_Screenshot_Click(sender, e);
         }
 
         private void Btn_Delete_Click(object sender, RoutedEventArgs e)

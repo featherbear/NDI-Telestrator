@@ -72,8 +72,6 @@
             </Controls:SplitButton>
         </StackPanel>
 
-
-
         <StackPanel Margin="10">
             <TextBlock Style="{StaticResource MaterialDesignTitleTextBlock}" Text="Screenshots" />
 
@@ -87,9 +85,9 @@
                 ItemsSource="{enums:EnumToItemsSource {x:Type enums:ScreenshotFormatTypes}}"
                 SelectedIndex="{Binding bindScreenshotFormatTypeIndex, ElementName=optionsDialogue}" />
 
+            <TextBlock Text="Quick Save" />
             <StackPanel Orientation="Horizontal">
-                <Controls:ToggleSwitch OffLabel="Disabled" OnLabel="Enabled" />
-                <Controls:ProgressRing x:Name="progress" />
+                <Controls:ToggleSwitch IsChecked="{Binding Source={x:Static telestrator:Options.quickSaveEnabled}, Path=.}" />
             </StackPanel>
         </StackPanel>
     </StackPanel>
