@@ -140,7 +140,8 @@ namespace NDI_Telestrator
         public static void Btn_Screenshot_Click(object sender, RoutedEventArgs e)
         {
             Enums.ScreenshotFormatTypes type = Options.screenshotFormatType;
-            String saveFileName = "save";
+            
+            String saveFileName = "Screenshot " + DateTime.Now.ToString("yyyyMMdd-HHmmss");
 
             if (!Options.quickSaveEnabled)
             {
@@ -163,9 +164,6 @@ namespace NDI_Telestrator
             {
                 saveFileName += type == Enums.ScreenshotFormatTypes.JPG ? ".jpg" : ".png";
             }
-
-            Console.WriteLine(type);
-            Console.WriteLine(saveFileName);
 
             BitmapFrame b;
             if (type == Enums.ScreenshotFormatTypes.JPG)
