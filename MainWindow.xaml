@@ -7,43 +7,126 @@
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:whiteboard="clr-namespace:NDI_Telestrator"
     Title="Whiteboard"
-    Width="800"
-    Height="523.921"
+    Width="1280"
+    Height="800"
     BorderBrush="DarkSlateGray"
     BorderThickness="1"
     FontFamily="Montserrat"
     KeyDown="MainWindow_KeyDown"
     WindowStartupLocation="CenterScreen">
-    <Grid Margin="0,0,0,-6">
+
+    <Controls:MetroWindow.Flyouts>
+        <Controls:FlyoutsControl>
+
+            <Controls:Flyout
+                Width="300"
+                Header="About"
+                IsOpen="True"
+                Position="Right">
+
+                <StackPanel>
+
+                    <Border
+                        Name="Border_Btn_Load"
+                        BorderBrush="Transparent"
+                        BorderThickness="0,0,0,3">
+                        <Button
+                            Name="Btn_Load"
+                            Height="32"
+                            materialDesign:RippleAssist.IsCentered="True"
+                            Click="Btn_Load_Click"
+                            ClipToBounds="True"
+                            Style="{StaticResource BaseMetroWindowButtonStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="FolderOpen" />
+                                <TextBlock Text="Load Drawing" />
+                            </StackPanel>
+                        </Button>
+                    </Border>
+                    <Border
+                        Name="Border_Btn_Save"
+                        BorderBrush="Transparent"
+                        BorderThickness="0,0,0,3">
+                        <Button
+                            Name="Btn_Save"
+                            Height="32"
+                            VerticalAlignment="Bottom"
+                            materialDesign:RippleAssist.IsCentered="True"
+                            Click="Btn_Save_Click"
+                            ClipToBounds="True"
+                            Style="{StaticResource BaseMetroWindowButtonStyle}">
+
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="ContentSave" />
+                                <TextBlock Style="{StaticResource MetroTextBlock}" Text="Save Drawing" />
+                            </StackPanel>
+
+                        </Button>
+                    </Border>
+
+                    <StackPanel Margin="10">
+                        <TextBlock Style="{StaticResource MaterialDesignTitleTextBlock}" Text="NDI Source" />
+                        <Controls:SplitButton
+                            x:Name="NDISourcesDropdown"
+                            Margin="0,5,0,0"
+                            HorizontalContentAlignment="Left"
+                            Command="{Binding handleOpenNDISourceDropdown, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type whiteboard:MainWindow}}}"
+                            DisplayMemberPath="Name"
+                            ItemsSource="{Binding Sources, ElementName=theBackground}"
+                            SelectionChanged="NDISources_Selected">
+                            <Controls:SplitButton.Icon>
+                                <materialDesign:PackIcon Kind="Video" />
+                            </Controls:SplitButton.Icon>
+                        </Controls:SplitButton>
+                    </StackPanel>
+                </StackPanel>
+            </Controls:Flyout>
+        </Controls:FlyoutsControl>
+    </Controls:MetroWindow.Flyouts>
+
+
+    <Grid Margin="0,0,0,-6" HorizontalAlignment="Center">
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="50" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
 
         <Border
             Grid.Row="1"
             Margin="5"
+            VerticalAlignment="Center"
             BorderBrush="Black"
             BorderThickness="1">
-            <NDI:NdiSendContainer
-                Name="NdiContainer"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
-                NdiFrameRateNumerator="60000"
-                NdiHeight="1080"
-                NdiName="Whiteboard"
-                NdiWidth="1920">
-                <whiteboard:WhiteboardCanvas
-                    x:Name="theWhiteboard"
-                    Width="1920"
-                    Height="1080"
-                    ClipToBounds="True"
-                    Cursor="Pen" />
-            </NDI:NdiSendContainer>
+            <Grid>
+                <Grid Panel.ZIndex="1000">
+                    <NDI:NdiSendContainer
+                        Name="NdiContainer"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        IsSendPaused="True"
+                        NdiFrameRateNumerator="30000"
+                        NdiHeight="1080"
+                        NdiName="Telestrator"
+                        NdiWidth="1920">
+                        <whiteboard:WhiteboardCanvas
+                            x:Name="theWhiteboard"
+                            Width="1920"
+                            Height="1080"
+                            ClipToBounds="True"
+                            Cursor="Pen" />
+
+                    </NDI:NdiSendContainer>
+                </Grid>
+                <ContentControl x:Name="MainContent">
+                    <whiteboard:BackgroundView x:Name="theBackground" ReceiverName="Telestrator" />
+                </ContentControl>
+            </Grid>
         </Border>
 
         <StackPanel
@@ -52,38 +135,10 @@
             Margin="5"
             HorizontalAlignment="Center"
             Orientation="Horizontal">
-            <Border
-                Name="Border_Btn_Load"
-                BorderBrush="Transparent"
-                BorderThickness="0,0,0,3">
-                <Button
-                    Name="Btn_Load"
-                    Width="30"
-                    Height="32"
-                    VerticalAlignment="Bottom"
-                    materialDesign:RippleAssist.IsCentered="True"
-                    Click="Btn_Load_Click"
-                    ClipToBounds="True"
-                    Style="{StaticResource MaterialDesignToolForegroundButton}">
-                    <materialDesign:PackIcon Kind="FolderOpen" />
-                </Button>
-            </Border>
-            <Border
-                Name="Border_Btn_Save"
-                BorderBrush="Transparent"
-                BorderThickness="0,0,0,3">
-                <Button
-                    Name="Btn_Save"
-                    Width="30"
-                    Height="32"
-                    VerticalAlignment="Bottom"
-                    materialDesign:RippleAssist.IsCentered="True"
-                    Click="Btn_Save_Click"
-                    ClipToBounds="True"
-                    Style="{StaticResource MaterialDesignToolForegroundButton}">
-                    <materialDesign:PackIcon Kind="ContentSave" />
-                </Button>
-            </Border>
+
+            <!--  selector here  -->
+
+
             <Border
                 Name="Border_Btn_Delete"
                 BorderBrush="Transparent"
@@ -368,4 +423,7 @@
         </StackPanel>
 
     </Grid>
+
+
+
 </Controls:MetroWindow>

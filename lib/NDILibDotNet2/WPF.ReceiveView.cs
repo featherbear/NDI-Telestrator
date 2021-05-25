@@ -29,7 +29,7 @@ namespace NewTek.NDI.WPF
         public static readonly DependencyProperty ReceiverNameProperty =
             DependencyProperty.Register("ReceiverName", typeof(String), typeof(ReceiveView), new PropertyMetadata(""));
 
-        
+
 
         [Category("NewTek NDI"),
         Description("The NDI source to connect to. An empty new Source() or a Source with no Name will disconnect.")]
@@ -55,19 +55,6 @@ namespace NewTek.NDI.WPF
             }
         }
 
-        [Category("NewTek NDI"),
-        Description("Does the current source support PTZ functionality?")]
-        public bool IsPtz
-        {
-            get { return _isPtz; }
-            set
-            {
-                if (value != _isPtz)
-                {
-                    NotifyPropertyChanged("IsPtz");
-                }
-            }
-        }
 
         [Category("NewTek NDI"),
         Description("Does the current source support record functionality?")]
@@ -105,235 +92,112 @@ namespace NewTek.NDI.WPF
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-#region PTZ Methods
-        public bool SetPtzZoom(double value)
+        #region Recording Methods
+        // This will start recording.If the recorder was already recording then the message is ignored.A filename is passed in as a ‘hint’.Since the recorder might 
+        // already be recording(or might not allow complete flexibility over its filename), the filename might or might not be used.If the filename is empty, or 
+        // not present, a name will be chosen automatically. 
+        public bool RecordingStart(String filenameHint = "")
         {
-            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+            if (!_canRecord || _recvInstancePtr == IntPtr.Zero)
                 return false;
 
-            return NDIlib.recv_ptz_zoom(_recvInstancePtr, (float)value);
+            bool retVal = false;
+
+            if (String.IsNullOrEmpty(filenameHint))
+            {
+                retVal = NDIlib.recv_recording_start(_recvInstancePtr, IntPtr.Zero);
+            }
+            else
+            {
+                // convert to an unmanaged UTF8 IntPtr
+                IntPtr fileNamePtr = NDI.UTF.StringToUtf8(filenameHint);
+
+                retVal = NDIlib.recv_recording_start(_recvInstancePtr, IntPtr.Zero);
+
+                // don't forget to free it
+                Marshal.FreeHGlobal(fileNamePtr);
+            }
+
+            return retVal;
         }
 
-        public bool SetPtzZoomSpeed(double value)
+        // Stop recording.
+        public bool RecordingStop()
         {
-            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+            if (!_canRecord || _recvInstancePtr == IntPtr.Zero)
                 return false;
 
-            return NDIlib.recv_ptz_zoom_speed(_recvInstancePtr, (float)value);
+            return NDIlib.recv_recording_stop(_recvInstancePtr);
         }
 
-        public bool SetPtzPanTilt(double pan, double tilt)
+
+        public bool RecordingSetAudioLevel(double level)
         {
-            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+            if (!_canRecord || _recvInstancePtr == IntPtr.Zero)
                 return false;
 
-            return NDIlib.recv_ptz_pan_tilt(_recvInstancePtr, (float)pan, (float)tilt);
+            return NDIlib.recv_recording_set_audio_level(_recvInstancePtr, (float)level);
         }
 
-        public bool SetPtzPanTiltSpeed(double panSpeed, double tiltSpeed)
+        public bool IsRecording()
         {
-            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+            if (!_canRecord || _recvInstancePtr == IntPtr.Zero)
                 return false;
 
-            return NDIlib.recv_ptz_pan_tilt_speed(_recvInstancePtr, (float)panSpeed, (float)tiltSpeed);
+            return NDIlib.recv_recording_is_recording(_recvInstancePtr);
         }
 
-        public bool PtzStorePreset(int index)
+        public String GetRecordingFilename()
         {
-            if (!_isPtz || _recvInstancePtr == IntPtr.Zero || index < 0 || index > 99)
-                return false;
-
-            return NDIlib.recv_ptz_store_preset(_recvInstancePtr, index);
-        }
-
-        public bool PtzRecallPreset(int index, double speed)
-        {
-            if (!_isPtz || _recvInstancePtr == IntPtr.Zero || index < 0 || index > 99)
-                return false;
-
-            return NDIlib.recv_ptz_recall_preset(_recvInstancePtr, index, (float)speed);
-        }
-
-        public bool PtzAutoFocus()
-        {
-            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
-                return false;
-
-            return NDIlib.recv_ptz_auto_focus(_recvInstancePtr);
-        }
-
-        public bool SetPtzFocusSpeed(double speed)
-        {
-            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
-                return false;
-
-            return NDIlib.recv_ptz_focus_speed(_recvInstancePtr, (float)speed);
-        }
-
-        public bool PtzWhiteBalanceAuto()
-        {
-            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
-                return false;
-
-            return NDIlib.recv_ptz_white_balance_auto(_recvInstancePtr);
-        }
-
-        public bool PtzWhiteBalanceIndoor()
-        {
-            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
-                return false;
-
-            return NDIlib.recv_ptz_white_balance_indoor(_recvInstancePtr);
-        }
-
-        public bool PtzWhiteBalanceOutdoor()
-        {
-            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
-                return false;
-
-            return NDIlib.recv_ptz_white_balance_outdoor(_recvInstancePtr);
-        }
-
-        public bool PtzWhiteBalanceOneShot()
-        {
-            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
-                return false;
-
-            return NDIlib.recv_ptz_white_balance_oneshot(_recvInstancePtr);
-        }
-
-        public bool PtzWhiteBalanceManual(double red, double blue)
-        {
-            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
-                return false;
-
-            return NDIlib.recv_ptz_white_balance_manual(_recvInstancePtr, (float)red, (float)blue);
-        }
-
-        public bool PtzExposureAuto()
-        {
-            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
-                return false;
-
-            return NDIlib.recv_ptz_exposure_auto(_recvInstancePtr);
-        }
-
-        public bool PtzExposureManual(double level)
-        {
-            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
-                return false;
-
-            return NDIlib.recv_ptz_exposure_manual(_recvInstancePtr, (float)level);
-        }
-
-#endregion PTZ Methods
-
-#region Recording Methods
-    // This will start recording.If the recorder was already recording then the message is ignored.A filename is passed in as a ‘hint’.Since the recorder might 
-	// already be recording(or might not allow complete flexibility over its filename), the filename might or might not be used.If the filename is empty, or 
-	// not present, a name will be chosen automatically. 
-    public bool RecordingStart(String filenameHint = "")
-    {
-        if (!_canRecord || _recvInstancePtr == IntPtr.Zero)
-                return false;
-
-        bool retVal = false;
-
-        if(String.IsNullOrEmpty(filenameHint))
-        {
-            retVal = NDIlib.recv_recording_start(_recvInstancePtr, IntPtr.Zero);
-        }
-        else
-        {
-            // convert to an unmanaged UTF8 IntPtr
-            IntPtr fileNamePtr = NDI.UTF.StringToUtf8(filenameHint);
-
-            retVal = NDIlib.recv_recording_start(_recvInstancePtr, IntPtr.Zero);
-
-            // don't forget to free it
-            Marshal.FreeHGlobal(fileNamePtr);            
-        }
-
-        return retVal;
-    }
-
-	// Stop recording.
-	public bool RecordingStop()
-    {
-        if (!_canRecord || _recvInstancePtr == IntPtr.Zero)
-                return false;
-
-	    return NDIlib.recv_recording_stop(_recvInstancePtr);
-    }
-
-    
-    public bool RecordingSetAudioLevel(double level)
-    {
-        if (!_canRecord || _recvInstancePtr == IntPtr.Zero)
-                return false;
-
-        return NDIlib.recv_recording_set_audio_level(_recvInstancePtr, (float)level);
-    }
-
-    public bool IsRecording()
-    {
-        if (!_canRecord || _recvInstancePtr == IntPtr.Zero)
-                return false;
-
-        return NDIlib.recv_recording_is_recording(_recvInstancePtr);
-    }
-
-    public String GetRecordingFilename()
-    {
-        if (!_canRecord || _recvInstancePtr == IntPtr.Zero)
+            if (!_canRecord || _recvInstancePtr == IntPtr.Zero)
                 return String.Empty;
 
-        IntPtr filenamePtr = NDIlib.recv_recording_get_filename(_recvInstancePtr);
-        if(filenamePtr == IntPtr.Zero)
-        {
-            return String.Empty;
+            IntPtr filenamePtr = NDIlib.recv_recording_get_filename(_recvInstancePtr);
+            if (filenamePtr == IntPtr.Zero)
+            {
+                return String.Empty;
+            }
+            else
+            {
+                String filename = NDI.UTF.Utf8ToString(filenamePtr);
+
+                // free it
+                NDIlib.recv_free_string(_recvInstancePtr, filenamePtr);
+
+                return filename;
+            }
         }
-        else
+
+        public String GetRecordingError()
         {
-            String filename = NDI.UTF.Utf8ToString(filenamePtr);
+            if (!_canRecord || _recvInstancePtr == IntPtr.Zero)
+                return String.Empty;
 
-            // free it
-            NDIlib.recv_free_string(_recvInstancePtr, filenamePtr);
+            IntPtr errorPtr = NDIlib.recv_recording_get_error(_recvInstancePtr);
+            if (errorPtr == IntPtr.Zero)
+            {
+                return String.Empty;
+            }
+            else
+            {
+                String error = NDI.UTF.Utf8ToString(errorPtr);
 
-            return filename;
+                // free it
+                NDIlib.recv_free_string(_recvInstancePtr, errorPtr);
+
+                return error;
+            }
         }
-    }
 
-    public String GetRecordingError()
-    {
-        if (!_canRecord || _recvInstancePtr == IntPtr.Zero)
-            return String.Empty;
-
-        IntPtr errorPtr = NDIlib.recv_recording_get_error(_recvInstancePtr);
-        if (errorPtr == IntPtr.Zero)
+        public bool GetRecordingTimes(ref NDIlib.recv_recording_time_t recordingTimes)
         {
-            return String.Empty;
+            if (!_canRecord || _recvInstancePtr == IntPtr.Zero)
+                return false;
+
+            return NDIlib.recv_recording_get_times(_recvInstancePtr, ref recordingTimes);
         }
-        else
-        {
-            String error = NDI.UTF.Utf8ToString(errorPtr);
 
-            // free it
-            NDIlib.recv_free_string(_recvInstancePtr, errorPtr);
-
-            return error;
-        }
-    }
-
-    public bool GetRecordingTimes(ref NDIlib.recv_recording_time_t recordingTimes)
-    {
-        if (!_canRecord || _recvInstancePtr == IntPtr.Zero)
-            return false;
-
-        return NDIlib.recv_recording_get_times(_recvInstancePtr, ref recordingTimes);
-    }
-
-#endregion Recording Methods
+        #endregion Recording Methods
 
         private void NotifyPropertyChanged(String info)
         {
@@ -371,14 +235,14 @@ namespace NewTek.NDI.WPF
                         _receiveThread = null;
                     }
                 }
-                
+
                 // Destroy the receiver
                 if (_recvInstancePtr != IntPtr.Zero)
                 {
                     NDIlib.recv_destroy(_recvInstancePtr);
                     _recvInstancePtr = IntPtr.Zero;
                 }
-                
+
                 // Not required, but "correct". (see the SDK documentation)
                 NDIlib.destroy();
 
@@ -411,7 +275,7 @@ namespace NewTek.NDI.WPF
 
             // just to be safe
             Disconnect();
-            
+
             // Sanity
             if (source == null || String.IsNullOrEmpty(source.Name))
                 return;
@@ -445,7 +309,7 @@ namespace NewTek.NDI.WPF
                 // senders, so this might be "Channel 1" on your system.
                 p_ndi_recv_name = UTF.StringToUtf8(ReceiverName)
             };
-            
+
             // create a new instance connected to this source
             _recvInstancePtr = NDIlib.recv_create_v3(ref recvDescription);
 
@@ -493,7 +357,6 @@ namespace NewTek.NDI.WPF
             _recvInstancePtr = IntPtr.Zero;
 
             // set function status to defaults
-            IsPtz = false;
             IsRecordingSupported = false;
             WebControlUrl = String.Empty;
         }
@@ -527,73 +390,70 @@ namespace NewTek.NDI.WPF
 
                 switch (NDIlib.recv_capture_v2(_recvInstancePtr, ref videoFrame, ref audioFrame, ref metadataFrame, 1000))
                 {
-                // No data
-                case NDIlib.frame_type_e.frame_type_none:
-                    // No data received
-                    break;
+                    // No data
+                    case NDIlib.frame_type_e.frame_type_none:
+                        // No data received
+                        break;
 
-                // frame settings - check for extended functionality
-                case NDIlib.frame_type_e.frame_type_status_change:
-                    // check for PTZ
-                    IsPtz = NDIlib.recv_ptz_is_supported(_recvInstancePtr);
+                    // frame settings - check for extended functionality
+                    case NDIlib.frame_type_e.frame_type_status_change:
+                        // Check for recording
+                        IsRecordingSupported = NDIlib.recv_recording_is_supported(_recvInstancePtr);
 
-                    // Check for recording
-                    IsRecordingSupported = NDIlib.recv_recording_is_supported(_recvInstancePtr);
+                        // Check for a web control URL
+                        // We must free this string ptr if we get one.
+                        IntPtr webUrlPtr = NDIlib.recv_get_web_control(_recvInstancePtr);
+                        if (webUrlPtr == IntPtr.Zero)
+                        {
+                            WebControlUrl = String.Empty;
+                        }
+                        else
+                        {
+                            // convert to managed String
+                            WebControlUrl = NDI.UTF.Utf8ToString(webUrlPtr);
 
-                    // Check for a web control URL
-                    // We must free this string ptr if we get one.
-                    IntPtr webUrlPtr = NDIlib.recv_get_web_control(_recvInstancePtr);
-                    if (webUrlPtr == IntPtr.Zero)
-                    {
-                        WebControlUrl = String.Empty;
-                    }
-                    else
-                    {
-                        // convert to managed String
-                        WebControlUrl = NDI.UTF.Utf8ToString(webUrlPtr);
-
-                        // Don't forget to free the string ptr
-                        NDIlib.recv_free_string(_recvInstancePtr, webUrlPtr);
-                    }
-
-                    break;
-
-                // Video data
-                case NDIlib.frame_type_e.frame_type_video:
-
-                    // if not enabled, just discard
-                    // this can also occasionally happen when changing sources
-                    if (!_videoEnabled || videoFrame.p_data == IntPtr.Zero)
-                    {
-                        // alreays free received frames
-                        NDIlib.recv_free_video_v2(_recvInstancePtr, ref videoFrame);
+                            // Don't forget to free the string ptr
+                            NDIlib.recv_free_string(_recvInstancePtr, webUrlPtr);
+                        }
 
                         break;
-                    }
 
-                    // get all our info so that we can free the frame
-                    int yres = (int)videoFrame.yres;
-                    int xres = (int)videoFrame.xres;
+                    // Video data
+                    case NDIlib.frame_type_e.frame_type_video:
 
-                    // quick and dirty aspect ratio correction for non-square pixels - SD 4:3, 16:9, etc.
-                    double dpiX = 96.0 * (videoFrame.picture_aspect_ratio / ((double)xres / (double)yres));
+                        // if not enabled, just discard
+                        // this can also occasionally happen when changing sources
+                        if (!_videoEnabled || videoFrame.p_data == IntPtr.Zero)
+                        {
+                            // alreays free received frames
+                            NDIlib.recv_free_video_v2(_recvInstancePtr, ref videoFrame);
 
-                    int stride = (int)videoFrame.line_stride_in_bytes;
-                    int bufferSize = yres * stride;
+                            break;
+                        }
 
-                    // We need to be on the UI thread to write to our bitmap
-                    // Not very efficient, but this is just an example
-                    Dispatcher.BeginInvoke(new Action(delegate
-                    {
+                        // get all our info so that we can free the frame
+                        int yres = (int)videoFrame.yres;
+                        int xres = (int)videoFrame.xres;
+
+                        // quick and dirty aspect ratio correction for non-square pixels - SD 4:3, 16:9, etc.
+                        double dpiX = 96.0 * (videoFrame.picture_aspect_ratio / ((double)xres / (double)yres));
+
+                        int stride = (int)videoFrame.line_stride_in_bytes;
+                        int bufferSize = yres * stride;
+
+                        // We need to be on the UI thread to write to our bitmap
+                        // Not very efficient, but this is just an example
+                        Dispatcher.BeginInvoke(new Action(delegate
+                        {
                         // resize the writeable if needed
                         if (VideoBitmap == null ||
-                            VideoBitmap.PixelWidth != xres ||
-                            VideoBitmap.PixelHeight != yres ||
-                            VideoBitmap.DpiX != dpiX)
-                        {
-                            VideoBitmap = new WriteableBitmap(xres, yres, dpiX, 96.0, PixelFormats.Pbgra32, null);
-                            VideoSurface.Source = VideoBitmap;
-                        }
+                                VideoBitmap.PixelWidth != xres ||
+                                VideoBitmap.PixelHeight != yres ||
+                                VideoBitmap.DpiX != dpiX)
+                            {
+                                VideoBitmap = new WriteableBitmap(xres, yres, dpiX, 96.0, PixelFormats.Pbgra32, null);
+                                VideoSurface.Source = VideoBitmap;
+                            }
 
                         // update the writeable bitmap
                         VideoBitmap.WritePixels(new Int32Rect(0, 0, xres, yres), videoFrame.p_data, bufferSize, stride);
@@ -601,21 +461,25 @@ namespace NewTek.NDI.WPF
                         // free frames that were received AFTER use!
                         // This writepixels call is dispatched, so we must do it inside this scope.
                         NDIlib.recv_free_video_v2(_recvInstancePtr, ref videoFrame);
-                    }));
+                        }));
 
-                    break;
+                        break;
 
-                // Metadata
-                case NDIlib.frame_type_e.frame_type_metadata:
+                    case NDIlib.frame_type_e.frame_type_audio:
+                        NDIlib.recv_free_audio_v2(_recvInstancePtr, ref audioFrame);
+                        break;
 
-                    // UTF-8 strings must be converted for use - length includes the terminating zero
-                    //String metadata = Utf8ToString(metadataFrame.p_data, metadataFrame.length-1);
+                    // Metadata
+                    case NDIlib.frame_type_e.frame_type_metadata:
 
-                    //System.Diagnostics.Debug.Print(metadata);
+                        // UTF-8 strings must be converted for use - length includes the terminating zero
+                        //String metadata = Utf8ToString(metadataFrame.p_data, metadataFrame.length-1);
 
-                    // free frames that were received
-                    NDIlib.recv_free_metadata(_recvInstancePtr, ref metadataFrame);
-                    break;
+                        //System.Diagnostics.Debug.Print(metadata);
+
+                        // free frames that were received
+                        NDIlib.recv_free_metadata(_recvInstancePtr, ref metadataFrame);
+                        break;
                 }
             }
         }
@@ -637,8 +501,7 @@ namespace NewTek.NDI.WPF
 
         // should we send video to Windows or not?
         private bool _videoEnabled = true;
-        
-        private bool _isPtz = false;
+
         private bool _canRecord = false;
         private String _webControlUrl = String.Empty;
         private String _receiverName = String.Empty;
