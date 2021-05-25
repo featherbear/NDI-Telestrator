@@ -90,5 +90,24 @@
                 <Controls:ToggleSwitch IsChecked="{Binding Source={x:Static telestrator:Options.quickSaveEnabled}, Path=.}" IsCheckedChanged="ToggleSwitch_IsCheckedChanged" />
             </StackPanel>
         </StackPanel>
+
+        <StackPanel Margin="10">
+            <TextBlock Style="{StaticResource MaterialDesignTitleTextBlock}" Text="Layers" />
+            <Border BorderBrush="Transparent" BorderThickness="0,0,0,3">
+                <Button
+                    Width="30"
+                    Height="32"
+                    VerticalAlignment="Bottom"
+                    materialDesign:RippleAssist.IsCentered="True"
+                    Click="onBtnCreateLayer"
+                    ClipToBounds="True"
+                    Style="{StaticResource MaterialDesignToolForegroundButton}">
+                    <materialDesign:PackIcon Kind="Square" />
+                </Button>
+            </Border>
+            <StackPanel Name="ABC" />
+
+
+        </StackPanel>
     </StackPanel>
 </Controls:Flyout>

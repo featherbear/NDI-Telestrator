@@ -12,7 +12,7 @@ using System.Windows.Shapes;
 
 namespace NDI_Telestrator
 {
-  
+
 
     public class WhiteboardCanvas : System.Windows.Controls.Canvas, INotifyPropertyChanged
     {
@@ -27,7 +27,21 @@ namespace NDI_Telestrator
 
         private double brushThickness = 1.0;
         private Color brushColor = Colors.Black;
-        public InkCanvas activeInkCanvas;
+
+        private InkCanvas _activeInkCanvas;
+        public InkCanvas activeInkCanvas
+        {
+            get
+            {
+                return _activeInkCanvas;
+            }
+            set
+            {
+                _activeInkCanvas = value;
+                OnPropertyChanged();
+                updateUndoRedoStates();
+            }
+        }
 
         public List<InkCanvas> inkCanvases
         {
@@ -87,7 +101,7 @@ namespace NDI_Telestrator
             InitializeComponent();
         }
 
-        private InkCanvas CreateLayer()
+        public InkCanvas CreateLayer()
         {
             InkCanvas canvas = new InkCanvas();
             // Clear the redo queue on new stroke input
@@ -102,6 +116,8 @@ namespace NDI_Telestrator
             canvas.Background = System.Windows.Media.Brushes.Transparent;
             canvas.UseCustomCursor = true;
             canvas.Cursor = this.Cursor;
+            canvas.Width = this.Width;
+            canvas.Height = this.Height;
             return canvas;
         }
 
@@ -153,7 +169,7 @@ namespace NDI_Telestrator
         //    inkCanvas.Select(new StrokeCollection());
         //}
 
- 
+
         public void SetPenColor(Color color)
         {
             brushColor = color;

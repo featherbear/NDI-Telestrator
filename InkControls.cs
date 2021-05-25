@@ -194,5 +194,12 @@ namespace NDI_Telestrator
                 }
             }
         }
+
+        public static void createNewLayer()
+        {
+            InkCanvas canvas = whiteboard.CreateLayer();
+            whiteboard.Children.Add(canvas);
+            whiteboard.activeInkCanvas = canvas;
+        }
     }
 }

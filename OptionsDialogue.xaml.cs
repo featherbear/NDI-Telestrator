@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -103,6 +103,12 @@ namespace NDI_Telestrator
         private void ToggleSwitch_IsCheckedChanged(object sender, EventArgs e)
         {
             Options.quickSaveEnabled = !Options.quickSaveEnabled;
+        }
+
+        private void onBtnCreateLayer(object sender, RoutedEventArgs e)
+        {
+            InkControls.createNewLayer();
+            Console.WriteLine("There are now " + InkControls.whiteboard.Children.Count + " canvases");
         }
     }
 }
