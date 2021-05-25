@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,12 +12,50 @@ using System.Windows.Shapes;
 
 namespace NDI_Telestrator
 {
-    class WhiteboardCanvas : System.Windows.Controls.Canvas
+    class WhiteboardCanvas : System.Windows.Controls.Canvas, INotifyPropertyChanged
     {
 
         private double brushThickness = 1.0;
         private Color brushColor = Colors.Black;
         public InkCanvas inkCanvas;
+
+        private bool _hasRedoContent;
+        public bool hasRedoContent
+        {
+            get
+            {
+                return _hasRedoContent;
+            }
+            private set
+            {
+                _hasRedoContent = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+        private bool _hasUndoContent;
+        public bool hasUndoContent
+        {
+            get
+            {
+                return _hasUndoContent;
+            }
+            private set
+            {
+                _hasUndoContent = value;
+                OnPropertyChanged();
+            }
+        }
+
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private Queue<Stroke> redoQueue = new Queue<Stroke>();
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public WhiteboardCanvas()
         {
@@ -26,6 +65,16 @@ namespace NDI_Telestrator
         private void InitializeComponent()
         {
             inkCanvas = new InkCanvas();
+
+            // Clear the redo queue on new stroke input
+            // TODO: Check if working wtih stroke move / copy / drag
+            inkCanvas.StrokeCollected += (sender, args) =>
+            {
+                redoQueue.Clear();
+                updateUndoRedoStates();
+            };
+
+
             inkCanvas.Background = System.Windows.Media.Brushes.Transparent;
             SizeChanged += WhiteboardCanvas_SizeChanged;
 
@@ -74,8 +123,26 @@ namespace NDI_Telestrator
         {
             if (inkCanvas.Strokes.Count > 0)
             {
+                redoQueue.Enqueue(inkCanvas.Strokes.Last());
                 inkCanvas.Strokes.RemoveAt(inkCanvas.Strokes.Count - 1);
+
+                updateUndoRedoStates();
             }
+        }
+
+        public void Redo()
+        {
+            if (redoQueue.Count > 0)
+            {
+                inkCanvas.Strokes.Add(redoQueue.Dequeue());
+                updateUndoRedoStates();
+            }
+        }
+
+        private void updateUndoRedoStates()
+        {
+            hasUndoContent = inkCanvas.Strokes.Count > 0;
+            hasRedoContent = redoQueue.Count > 0;
         }
 
         public void Clear()

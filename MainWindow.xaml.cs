@@ -21,8 +21,26 @@ namespace NDI_Telestrator
         {
             switch (e.Key)
             {
+
                 case Key.Z:
-                    if ((Forms.Control.ModifierKeys & Forms.Keys.Control) == Forms.Keys.Control) theWhiteboard.Undo();
+                    if ((Forms.Control.ModifierKeys & Forms.Keys.Control) == Forms.Keys.Control)
+                    {
+                        if ((Forms.Control.ModifierKeys & Forms.Keys.Shift) == Forms.Keys.Shift)
+                        {
+                            // Ctrl + Shift + Z
+                            theWhiteboard.Redo();
+                        }
+                        else
+                        {
+                            // Ctrl + Z
+                            theWhiteboard.Undo();
+                        }
+                    }
+                    break;
+
+                // Ctrl + Y
+                case Key.Y:
+                    if ((Forms.Control.ModifierKeys & Forms.Keys.Control) == Forms.Keys.Control) theWhiteboard.Redo();
                     break;
             }
         }
@@ -115,6 +133,17 @@ namespace NDI_Telestrator
         {
             theWhiteboard.SetPenThickness(5.0);
         }
+
+        private void Btn_Undo_Click(object sender, RoutedEventArgs e)
+        {
+            theWhiteboard.Undo();
+        }
+
+        private void Btn_Redo_Click(object sender, RoutedEventArgs e)
+        {
+            theWhiteboard.Redo();
+        }
+
 
         private void NDISources_Selected(object sender, SelectionChangedEventArgs e)
         {
