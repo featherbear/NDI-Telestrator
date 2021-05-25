@@ -127,27 +127,27 @@ namespace NDI_Telestrator
             inkDA.Height = size;
             inkDA.Color = color;
             // inkDA.FitToCurve = true;
-            inkDA.StylusTip = StylusTip.Rectangle;
-            inkDA.IsHighlighter = true;
+            //inkDA.StylusTip = StylusTip.Rectangle;
+            //inkDA.IsHighlighter = true;
             // inkDA.IgnorePressure
 
             inkCanvas.DefaultDrawingAttributes = inkDA;
-            __setPenAttributes(color, size);
+            //__setPenAttributes(color, size);
         }
 
 
-        private void __setPenAttributes(Color color, double size)
-        {
-            // DrawingAttributes inkDA = new DrawingAttributes();
-            // inkCanvas.EditingMode = InkCanvasEditingMode.EraseByPoint;
-            inkCanvas.EditingMode = InkCanvasEditingMode.EraseByStroke;
+        //private void __setPenAttributes(Color color, double size)
+        //{
+        //    // DrawingAttributes inkDA = new DrawingAttributes();
+        //    // inkCanvas.EditingMode = InkCanvasEditingMode.EraseByPoint;
+        //    inkCanvas.EditingMode = InkCanvasEditingMode.EraseByStroke;
 
-            //inkCanvas.DefaultDrawingAttributes = inkDA;
+        //    //inkCanvas.DefaultDrawingAttributes = inkDA;
 
 
 
-            inkCanvas.Select(new StrokeCollection());
-        }
+        //    inkCanvas.Select(new StrokeCollection());
+        //}
 
         private void TODO()
         {

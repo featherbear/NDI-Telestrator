@@ -17,7 +17,7 @@
 
     <Controls:MetroWindow.Flyouts>
         <Controls:FlyoutsControl>
-            <whiteboard:OptionsDialogue x:Name="optionsDialogue" />
+            <whiteboard:OptionsDialogue x:Name="optionsDialogue" IsOpen="False" />
         </Controls:FlyoutsControl>
     </Controls:MetroWindow.Flyouts>
     <StackPanel>
@@ -412,6 +412,24 @@
                         Foreground="Black"
                         Style="{StaticResource MaterialDesignToolForegroundButton}">
                         <materialDesign:PackIcon Kind="Circle" />
+                    </Button>
+                </Border>
+
+                <Border
+                    Name="Border_Btn_Options"
+                    BorderBrush="Transparent"
+                    BorderThickness="0,0,0,3">
+                    <Button
+                        Name="Btn_Options"
+                        Width="30"
+                        Height="32"
+                        VerticalAlignment="Bottom"
+                        materialDesign:RippleAssist.IsCentered="True"
+                        Click="Btn_Options_Click"
+                        ClipToBounds="True"
+                        Foreground="Black"
+                        Style="{StaticResource MaterialDesignToolForegroundButton}">
+                        <materialDesign:PackIcon Kind="Settings" />
                     </Button>
                 </Border>
 

@@ -13,7 +13,7 @@
     d:DesignHeight="450"
     d:DesignWidth="800"
     Header="About"
-    IsOpen="True"
+    IsOpen="{Binding IsOpen}"
     Position="Right"
     mc:Ignorable="d">
     <StackPanel>
