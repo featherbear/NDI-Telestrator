@@ -1,4 +1,5 @@
 using MahApps.Metro.Controls;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
@@ -14,11 +15,34 @@ namespace NDI_Telestrator
 {
     public partial class MainWindow : MetroWindow
     {
+
+        private void requestNDI(object caller, object args)
+        {
+            ndi.requestFrameUpdate();
+        }
         public MainWindow()
         {
             InitializeComponent();
             InkControls.whiteboard = theWhiteboard;
             optionsDialogue.background = theBackground;
+
+            // Send an NDI frame on every draw event
+            theWhiteboard.GotMouseCapture += (a, b) =>
+            {
+                theWhiteboard.MouseMove += requestNDI;
+                theWhiteboard.StylusMove += requestNDI;
+            };
+            theWhiteboard.LostMouseCapture += (a, b) =>
+            {
+                theWhiteboard.MouseMove -= requestNDI;
+                theWhiteboard.StylusMove -= requestNDI;
+            };
+
+            // Send an NDI frame every 250ms
+            System.Windows.Threading.DispatcherTimer timer = new System.Windows.Threading.DispatcherTimer();
+            timer.Interval = TimeSpan.FromSeconds(0.25);
+            timer.Tick += requestNDI;
+            timer.Start();
 
         }
 
