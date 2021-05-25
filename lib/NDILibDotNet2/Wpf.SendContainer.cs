@@ -159,7 +159,7 @@ namespace NewTek.NDI.WPF
             sendThread = new Thread(SendThreadProc) { IsBackground = true, Name = "WpfNdiSendThread" };
             sendThread.Start();
 
-            CompositionTargetEx.FrameUpdating += OnCompositionTargetRendering;
+            //CompositionTargetEx.FrameUpdating += OnCompositionTargetRendering;
             // CompositionTarget.Rendering += OnCompositionTargetRendering ;
 
             // Not required, but "correct". (see the SDK documentation)
@@ -229,8 +229,12 @@ namespace NewTek.NDI.WPF
         }
 
         private bool _disposed = false;
-        static bool _everySecond = false;
         
+        public void requestFrameUpdate()
+        {
+            OnCompositionTargetRendering(null, null);
+        }
+
         private void OnCompositionTargetRendering(object sender, EventArgs e)
         {
             if (IsSendPaused)
@@ -238,13 +242,6 @@ namespace NewTek.NDI.WPF
 
             if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(this))
                 return;
-
-            if (!((Canvas)(Child)).Focusable)
-            {
-                return;
-            }
-
-            if ((_everySecond = !_everySecond)) return;
 
             int xres = NdiWidth;
             int yres = NdiHeight;
@@ -273,8 +270,6 @@ namespace NewTek.NDI.WPF
 
             // render the content into the bitmap
             targetBitmap.Render(this.Child);
-            //((Canvas)this.Child).Measure(size);
-            //((Canvas)this.Child).Arrange(new Rect(size));
 
             stride = (xres * 32/*BGRA bpp*/ + 7) / 8;
             bufferSize = yres * stride;

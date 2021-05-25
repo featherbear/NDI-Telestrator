@@ -45,6 +45,7 @@
                 <Grid>
                     <Grid Panel.ZIndex="1000">
                         <NDI:NdiSendContainer
+                            x:Name="ndi"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
                             NdiFrameRateNumerator="30000"
