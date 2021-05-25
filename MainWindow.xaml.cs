@@ -114,5 +114,10 @@ namespace NDI_Telestrator
         }
 
         #endregion
+
+        private void Btn_Options_Click(object sender, RoutedEventArgs e)
+        {
+            optionsDialogue.IsOpen = !optionsDialogue.IsOpen;
+        }
     }
 }
