@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,8 +22,7 @@ namespace NDI_Telestrator
 
             if (saveDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                FileStream fs = new FileStream(saveDialog.FileName,
-                                               FileMode.Create);
+                FileStream fs = new FileStream(saveDialog.FileName, FileMode.Create);
                 whiteboard.inkCanvas.Strokes.Save(fs);
                 fs.Close();
             }
@@ -36,8 +35,7 @@ namespace NDI_Telestrator
 
             if (openDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                FileStream fs = new FileStream(openDialog.FileName,
-                                               FileMode.Open);
+                FileStream fs = new FileStream(openDialog.FileName, FileMode.Open);
                 whiteboard.inkCanvas.Strokes = new System.Windows.Ink.StrokeCollection(fs);
                 fs.Close();
                 whiteboard.updateUndoRedoStates();

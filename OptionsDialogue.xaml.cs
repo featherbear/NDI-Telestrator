@@ -42,13 +42,6 @@ namespace NDI_Telestrator
         }
         public event PropertyChangedEventHandler PropertyChanged;
 
-
-
-
-        // public InkControls controls { get; set; }
-        //        public BackgroundView background { get; set; }
-
-
         public OptionsDialogue()
         {
             InitializeComponent();
