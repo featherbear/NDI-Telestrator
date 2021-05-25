@@ -61,32 +61,6 @@ namespace NDI_Telestrator
         public WhiteboardCanvas()
         {
             InitializeComponent();
-
-            //ManipulationStarted += (a, b) =>
-            //{
-            //    Console.WriteLine("AA");
-            //};
-            //StylusCapture
-            
-            GotStylusCapture += (a, b) =>
-            {
-                Focusable = true;
-                //Console.WriteLine("Stylus" +  IsStylusCaptured);
-            };
-            LostStylusCapture += (a, b) =>
-            {
-                Focusable = false;
-                //Console.WriteLine("LOST STYLUS" + IsStylusCaptured);
-            };
-
-            //GotTouchCapture += (a, b) =>
-            //{
-            //    Console.WriteLine("Touch");
-            //};
-            //GotMouseCapture += (a, b) =>
-            //{
-            //    Console.WriteLine("Mouse");
-            //};
         }
 
         private void InitializeComponent()
