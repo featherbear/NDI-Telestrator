@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Ink;
 using System.Windows.Input;
@@ -107,7 +109,7 @@ namespace NDI_Telestrator
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-     
+
 
 
 
@@ -249,9 +251,53 @@ namespace NDI_Telestrator
             hasRedoContent = ((CanvasData)activeInkCanvas.Tag).redoQueue.Count > 0;
         }
 
+
+        [DllImport("user32.dll")]
+        static extern bool GetWindowRect(IntPtr hwnd, out RECT lpRect);
+
+        public struct RECT
+        {
+            public int Left;        // x position of upper-left corner
+            public int Top;         // y position of upper-left corner
+            public int Right;       // x position of lower-right corner
+            public int Bottom;      // y position of lower-right corner
+        }
+
+        [DllImport("user32.dll")]
+        static extern bool PrintWindow(IntPtr hwnd, IntPtr hDC, uint nFlags);
+
         public void Clear()
         {
-            activeInkCanvas.Strokes.Clear();
+            //             activeInkCanvas.Strokes.Clear();
+
+
+            Window window = Window.GetWindow(this);
+            IntPtr w = new System.Windows.Interop.WindowInteropHelper(window).EnsureHandle();
+
+            RECT bounds;
+            if (!GetWindowRect(w, out bounds)) throw new Win32Exception();
+
+               
+            var bmp = new System.Drawing.Bitmap(bounds.Right - bounds.Left, bounds.Bottom - bounds.Top);
+            using (var g = System.Drawing.Graphics.FromImage(bmp))
+            {
+                IntPtr dc = IntPtr.Zero;
+                try
+                {
+                    dc = g.GetHdc();
+                    bool success = PrintWindow(w, dc, 0x00000002 );
+                    if (!success) throw new Win32Exception();
+                }
+                finally
+                {
+                    if (dc != IntPtr.Zero)
+                        g.ReleaseHdc(dc);
+                }
+
+            }
+
+            bmp.Save("a.jpg");
+
         }
 
     }

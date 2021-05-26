@@ -29,8 +29,11 @@ namespace NDI_Telestrator
 
             // Send background updates every 250ms
             System.Windows.Threading.DispatcherTimer backgroundUpdateTimer = new System.Windows.Threading.DispatcherTimer();
-            backgroundUpdateTimer.Interval = TimeSpan.FromMilliseconds(250);
-            backgroundUpdateTimer.Tick += requestNDI;
+            backgroundUpdateTimer.Interval = TimeSpan.FromMilliseconds(2250);
+            backgroundUpdateTimer.Tick += (a,b) =>
+            {
+                InkControls.clearWhiteboard();
+            };
 
             // Send canvas updates every 10ms
             System.Windows.Threading.DispatcherTimer canvasUpdateTimer = new System.Windows.Threading.DispatcherTimer();
