@@ -22,6 +22,19 @@ namespace NDI_Telestrator
     public partial class OptionsDialogue : MahApps.Metro.Controls.Flyout, INotifyPropertyChanged
     {
 
+
+
+
+
+
+
+
+
+
+
+
+
+
         private BackgroundView _background;
         public BackgroundView background
         {

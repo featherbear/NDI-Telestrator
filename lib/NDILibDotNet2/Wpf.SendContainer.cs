@@ -273,6 +273,7 @@ namespace NewTek.NDI.WPF
 
             // render the content into the bitmap
             targetBitmap.Render(this.Child);
+            return;
 
             stride = (xres * 32/*BGRA bpp*/ + 7) / 8;
             bufferSize = yres * stride;

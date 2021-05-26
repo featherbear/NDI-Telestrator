@@ -274,8 +274,10 @@ namespace NDI_Telestrator
             Window window = Window.GetWindow(this);
             IntPtr w = new System.Windows.Interop.WindowInteropHelper(window).EnsureHandle();
             SwapchainSource source = SwapchainSource.CreateWin32(w, Marshal.GetHINSTANCE(typeof(WhiteboardCanvas).Module));
+            Console.WriteLine("intptr" +  Marshal.GetHINSTANCE(typeof(WhiteboardCanvas).Module));
 
-            //_gd.MainSwapchain
+            
+            
             _sc = _gd.ResourceFactory.CreateSwapchain(new SwapchainDescription(source, (uint)Width, (uint)Height, null, false));
             Console.WriteLine(_sc.Framebuffer.ColorTargets.Count);
 
@@ -294,12 +296,25 @@ namespace NDI_Telestrator
              renderTexture.Height,
              1,
              1,
-             _sc.Framebuffer.ColorTargets[0].Target.Format,
+             a.Format,
              TextureUsage.Staging));
 
             _cl.Begin();
-            _cl.SetFramebuffer(framebuffer);
+            _cl.SetFramebuffer(_sc.Framebuffer);
             //_cl.ClearColorTarget(0, RgbaFloat.CornflowerBlue);
+
+
+          
+            //Console.WriteLine("screenG" + screenG);
+            try
+            {
+                Console.WriteLine(ActualWidth);
+                
+            } catch
+            {
+                
+            }
+
             _cl.CopyTexture(
              renderTexture, 0, 0, 0, 0, 0,
              stage, 0, 0, 0, 0, 0,
@@ -307,6 +322,8 @@ namespace NDI_Telestrator
             _cl.End();
 
             _gd.SubmitCommands(_cl);
+            _gd.SwapBuffers(_sc);
+            Console.WriteLine(_gd.MainSwapchain);
 
             MappedResourceView<SixLabors.ImageSharp.PixelFormats.Rgba32 > map = _gd.Map<SixLabors.ImageSharp.PixelFormats.Rgba32>(stage, MapMode.Read);
 
@@ -319,7 +336,7 @@ namespace NDI_Telestrator
                 {
                     //int index = (int)(y * stage.Width + x);
                     //pixelData[index] = map[x, y]; // <- I have to convert BGRA to RGBA pixels here
-                    image[x, y] = new SixLabors.ImageSharp.PixelFormats.Rgba32(map[x, y].R, map[x, y].G, map[x, y].B, map[x, y].A);
+                    image[x, y] = new SixLabors.ImageSharp.PixelFormats.Rgba32(map[x, y].R, map[x, y].G, map[x, y].B, 120);
                 }
             }
             _gd.Unmap(stage);

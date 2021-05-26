@@ -27,6 +27,10 @@ namespace NDI_Telestrator
             optionsDialogue.whiteboard = theWhiteboard;
             optionsDialogue.background = theBackground;
 
+            Window window = Window.GetWindow(this);
+            IntPtr w = new System.Windows.Interop.WindowInteropHelper(window).EnsureHandle();
+            Console.WriteLine("MAIN PTR " + w);
+
             // Send background updates every 250ms
             //System.Windows.Threading.DispatcherTimer backgroundUpdateTimer = new System.Windows.Threading.DispatcherTimer();
             //backgroundUpdateTimer.Interval = TimeSpan.FromMilliseconds(250);
@@ -48,7 +52,7 @@ namespace NDI_Telestrator
             //    backgroundUpdateTimer.Stop();
             //    canvasUpdateTimer.Start();
             //};
-            
+
             //theWhiteboard.LostMouseCapture += (a, b) =>
             //{
             //    backgroundUpdateTimer.Start();
