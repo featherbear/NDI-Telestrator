@@ -1,3 +1,5 @@
+
+using SixLabors.ImageSharp.Formats.Png;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -264,92 +266,78 @@ namespace NDI_Telestrator
 
         public void Clear()
         {
-            activeInkCanvas.Strokes.Clear();
+           // activeInkCanvas.Strokes.Clear();
 
 
-            //_gd = GraphicsDevice.CreateD3D11(new GraphicsDeviceOptions());
+            _gd = GraphicsDevice.CreateD3D11(new GraphicsDeviceOptions());
 
-            //Window window = Window.GetWindow(this);
-            //IntPtr w = new System.Windows.Interop.WindowInteropHelper(window).EnsureHandle();
-            //SwapchainSource source = SwapchainSource.CreateWin32(w, Marshal.GetHINSTANCE(typeof(WhiteboardCanvas).Module));
+            Window window = Window.GetWindow(this);
+            IntPtr w = new System.Windows.Interop.WindowInteropHelper(window).EnsureHandle();
+            SwapchainSource source = SwapchainSource.CreateWin32(w, Marshal.GetHINSTANCE(typeof(WhiteboardCanvas).Module));
 
-            //_sc = _gd.ResourceFactory.CreateSwapchain(new SwapchainDescription(source, (uint)Width, (uint)Height, null, false));
-            //_cl = _gd.ResourceFactory.CreateCommandList();
-            //Console.WriteLine("Lol");
+            //_gd.MainSwapchain
+            _sc = _gd.ResourceFactory.CreateSwapchain(new SwapchainDescription(source, (uint)Width, (uint)Height, null, false));
+            Console.WriteLine(_sc.Framebuffer.ColorTargets.Count);
 
-            //_cl.Begin();
-            //_cl.SetFramebuffer(_sc.Framebuffer);
-            //_cl.ClearColorTarget(0, RgbaFloat.CornflowerBlue);
-            //_cl.End();
+            var a = _sc.Framebuffer.ColorTargets[0].Target;
+            _cl = _gd.ResourceFactory.CreateCommandList();
 
-            //_gd.SubmitCommands(_cl);
-            //_cl.CopyTexture()
-            //_gd.SwapBuffers(_sc);
+            Texture renderTexture = _gd.ResourceFactory.CreateTexture(new TextureDescription(
+                a.Width, a.Height, a.Depth, a.MipLevels, a.ArrayLayers, a.Format, TextureUsage.RenderTarget, TextureType.Texture2D, a.SampleCount
+                ));
 
-            ]
+            var framebufferDescription = new FramebufferDescription(null, renderTexture);
+            var framebuffer = _gd.ResourceFactory.CreateFramebuffer(framebufferDescription);
 
-               var rf = new Veldrid.Utilities.DisposeCollectorResourceFactory(_gd.ResourceFactory);
-
-            var colorTargetTexture = _gd.SwapchainFramebuffer.ColorTargets[0].Target;
-            var pixelFormat = colorTargetTexture.Format; // <- PixelFormat.B8_G8_R8_A8_UNorm, is it OK?
-
-            var textureDescription = colorTargetTexture.GetDescription();
-            textureDescription.Usage = TextureUsage.RenderTarget;
-            textureDescription.Type = TextureType.Texture2D;
-            textureDescription.Format = pixelFormat;
-
-            var textureForRender = rf.CreateTexture(textureDescription);
-
-            //var depthTexture = _gd.SwapchainFramebuffer.DepthTarget.Value.Target;
-            //var depthTextureForRender = rf.CreateTexture(depthTexture.GetDescription());
-
-            var framebufferDescription = new FramebufferDescription(null, textureForRender);
-            var framebuffer = rf.CreateFramebuffer(framebufferDescription);
-
-            Texture stage = rf.CreateTexture(TextureDescription.Texture2D(
-                textureForRender.Width,
-                textureForRender.Height,
-                1,
-                1,
-                pixelFormat,
-                TextureUsage.Staging));
-
-            SubmitUI();
+            Texture stage = _gd.ResourceFactory.CreateTexture(TextureDescription.Texture2D(
+             renderTexture.Width,
+             renderTexture.Height,
+             1,
+             1,
+             _sc.Framebuffer.ColorTargets[0].Target.Format,
+             TextureUsage.Staging));
 
             _cl.Begin();
             _cl.SetFramebuffer(framebuffer);
-
-            _cl.ClearColorTarget(0, new RgbaFloat(_clearColor.X, _clearColor.Y, _clearColor.Z, 1f));
-            _controller.Render(_gd, _cl);
-
+            //_cl.ClearColorTarget(0, RgbaFloat.CornflowerBlue);
             _cl.CopyTexture(
-                textureForRender, 0, 0, 0, 0, 0,
-                stage, 0, 0, 0, 0, 0,
-                stage.Width, stage.Height, 1, 1);
+             renderTexture, 0, 0, 0, 0, 0,
+             stage, 0, 0, 0, 0, 0,
+             stage.Width, stage.Height, 1, 1);
             _cl.End();
 
             _gd.SubmitCommands(_cl);
 
-            MappedResourceView<Rgba32> map = _gd.Map<Rgba32>(stage, MapMode.Read);
+            MappedResourceView<SixLabors.ImageSharp.PixelFormats.Rgba32 > map = _gd.Map<SixLabors.ImageSharp.PixelFormats.Rgba32>(stage, MapMode.Read);
 
-            var image = new Image<Rgba32>((int)stage.Width, (int)stage.Height);
+            var image = new SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32>((int)stage.Width, (int)stage.Height);
 
-            Rgba32[] pixelData = new Rgba32[stage.Width * stage.Height];
+            SixLabors.ImageSharp.PixelFormats.Rgba32[] pixelData = new SixLabors.ImageSharp.PixelFormats.Rgba32[stage.Width * stage.Height];
             for (int y = 0; y < stage.Height; y++)
             {
                 for (int x = 0; x < stage.Width; x++)
                 {
                     //int index = (int)(y * stage.Width + x);
                     //pixelData[index] = map[x, y]; // <- I have to convert BGRA to RGBA pixels here
-                    image[x, y] = new Rgba32(map[x, y].B, map[x, y].G, map[x, y].R, map[x, y].A);
+                    image[x, y] = new SixLabors.ImageSharp.PixelFormats.Rgba32(map[x, y].R, map[x, y].G, map[x, y].B, map[x, y].A);
                 }
             }
-
             _gd.Unmap(stage);
-            rf.DisposeCollector.DisposeAll();
 
-            image.SaveAsPng("test.png");
+            using (var file = new System.IO.FileStream("ABC.png", System.IO.FileMode.Create))
+            {
+                image.Save(file, new PngEncoder());
+            }
+
+            
+
+
+
         }
+
+
+
+
 
     }
 }
