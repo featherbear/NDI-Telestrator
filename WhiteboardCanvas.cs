@@ -2,20 +2,29 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using Veldrid;
 
 namespace NDI_Telestrator
 {
 
-
     public class WhiteboardCanvas : System.Windows.Controls.Canvas, INotifyPropertyChanged
+
+
     {
+
+        private GraphicsDevice _gd;
+        private Swapchain _sc;
+        private CommandList _cl;
+
         internal class CanvasData
         {
             public CanvasData()
@@ -107,7 +116,7 @@ namespace NDI_Telestrator
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-     
+
 
 
 
@@ -117,6 +126,8 @@ namespace NDI_Telestrator
         public WhiteboardCanvas()
         {
             InitializeComponent();
+
+
         }
 
 
@@ -143,6 +154,8 @@ namespace NDI_Telestrator
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InkCanvases2"));
 
             activeInkCanvas = canvas;
+
+
         }
         private InkCanvas CreateLayer()
         {
@@ -252,6 +265,90 @@ namespace NDI_Telestrator
         public void Clear()
         {
             activeInkCanvas.Strokes.Clear();
+
+
+            //_gd = GraphicsDevice.CreateD3D11(new GraphicsDeviceOptions());
+
+            //Window window = Window.GetWindow(this);
+            //IntPtr w = new System.Windows.Interop.WindowInteropHelper(window).EnsureHandle();
+            //SwapchainSource source = SwapchainSource.CreateWin32(w, Marshal.GetHINSTANCE(typeof(WhiteboardCanvas).Module));
+
+            //_sc = _gd.ResourceFactory.CreateSwapchain(new SwapchainDescription(source, (uint)Width, (uint)Height, null, false));
+            //_cl = _gd.ResourceFactory.CreateCommandList();
+            //Console.WriteLine("Lol");
+
+            //_cl.Begin();
+            //_cl.SetFramebuffer(_sc.Framebuffer);
+            //_cl.ClearColorTarget(0, RgbaFloat.CornflowerBlue);
+            //_cl.End();
+
+            //_gd.SubmitCommands(_cl);
+            //_cl.CopyTexture()
+            //_gd.SwapBuffers(_sc);
+
+            ]
+
+               var rf = new Veldrid.Utilities.DisposeCollectorResourceFactory(_gd.ResourceFactory);
+
+            var colorTargetTexture = _gd.SwapchainFramebuffer.ColorTargets[0].Target;
+            var pixelFormat = colorTargetTexture.Format; // <- PixelFormat.B8_G8_R8_A8_UNorm, is it OK?
+
+            var textureDescription = colorTargetTexture.GetDescription();
+            textureDescription.Usage = TextureUsage.RenderTarget;
+            textureDescription.Type = TextureType.Texture2D;
+            textureDescription.Format = pixelFormat;
+
+            var textureForRender = rf.CreateTexture(textureDescription);
+
+            //var depthTexture = _gd.SwapchainFramebuffer.DepthTarget.Value.Target;
+            //var depthTextureForRender = rf.CreateTexture(depthTexture.GetDescription());
+
+            var framebufferDescription = new FramebufferDescription(null, textureForRender);
+            var framebuffer = rf.CreateFramebuffer(framebufferDescription);
+
+            Texture stage = rf.CreateTexture(TextureDescription.Texture2D(
+                textureForRender.Width,
+                textureForRender.Height,
+                1,
+                1,
+                pixelFormat,
+                TextureUsage.Staging));
+
+            SubmitUI();
+
+            _cl.Begin();
+            _cl.SetFramebuffer(framebuffer);
+
+            _cl.ClearColorTarget(0, new RgbaFloat(_clearColor.X, _clearColor.Y, _clearColor.Z, 1f));
+            _controller.Render(_gd, _cl);
+
+            _cl.CopyTexture(
+                textureForRender, 0, 0, 0, 0, 0,
+                stage, 0, 0, 0, 0, 0,
+                stage.Width, stage.Height, 1, 1);
+            _cl.End();
+
+            _gd.SubmitCommands(_cl);
+
+            MappedResourceView<Rgba32> map = _gd.Map<Rgba32>(stage, MapMode.Read);
+
+            var image = new Image<Rgba32>((int)stage.Width, (int)stage.Height);
+
+            Rgba32[] pixelData = new Rgba32[stage.Width * stage.Height];
+            for (int y = 0; y < stage.Height; y++)
+            {
+                for (int x = 0; x < stage.Width; x++)
+                {
+                    //int index = (int)(y * stage.Width + x);
+                    //pixelData[index] = map[x, y]; // <- I have to convert BGRA to RGBA pixels here
+                    image[x, y] = new Rgba32(map[x, y].B, map[x, y].G, map[x, y].R, map[x, y].A);
+                }
+            }
+
+            _gd.Unmap(stage);
+            rf.DisposeCollector.DisposeAll();
+
+            image.SaveAsPng("test.png");
         }
 
     }

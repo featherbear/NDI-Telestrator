@@ -110,7 +110,7 @@
             </Border>
             <ListBox
                 ItemsSource="{Binding whiteboard.InkCanvases2, Converter={StaticResource ReverseConverter}, ElementName=optionsDialogue}"
-                SelectedIndex="{Binding selectedIndex}"
+                SelectedIndex="{Binding selectedIndex, ElementName=optionsDialogue, Mode=OneWay}"
                 SelectionChanged="ListBox_SelectionChanged" />
             <StackPanel Name="ABC" />
 

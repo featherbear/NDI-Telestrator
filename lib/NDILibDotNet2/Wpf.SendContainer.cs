@@ -159,7 +159,7 @@ namespace NewTek.NDI.WPF
             sendThread = new Thread(SendThreadProc) { IsBackground = true, Name = "WpfNdiSendThread" };
             sendThread.Start();
 
-            // CompositionTarget.Rendering += OnCompositionTargetRendering ;
+            CompositionTarget.Rendering += OnCompositionTargetRendering;
 
             // Not required, but "correct". (see the SDK documentation)
             if (!NDIlib.initialize())
@@ -263,6 +263,10 @@ namespace NewTek.NDI.WPF
                 fmtConvertedBmp.DestinationFormat = PixelFormats.Bgra32;
                 fmtConvertedBmp.EndInit();
             }
+
+            Size size = new Size(((Canvas)this.Child).Width, ((Canvas)this.Child).Height);
+            ((Canvas)this.Child).Measure(size);
+            ((Canvas)this.Child).Arrange(new Rect(size));
 
             // clear to prevent trails
             targetBitmap.Clear();

@@ -28,28 +28,34 @@ namespace NDI_Telestrator
             optionsDialogue.background = theBackground;
 
             // Send background updates every 250ms
-            System.Windows.Threading.DispatcherTimer backgroundUpdateTimer = new System.Windows.Threading.DispatcherTimer();
-            backgroundUpdateTimer.Interval = TimeSpan.FromMilliseconds(250);
-            backgroundUpdateTimer.Tick += requestNDI;
+            //System.Windows.Threading.DispatcherTimer backgroundUpdateTimer = new System.Windows.Threading.DispatcherTimer();
+            //backgroundUpdateTimer.Interval = TimeSpan.FromMilliseconds(250);
+            //backgroundUpdateTimer.Tick += (a,b) => {
+            //    Console.WriteLine("BG TICK");
+            //    requestNDI(null, null);
+            //};
 
             // Send canvas updates every 10ms
-            System.Windows.Threading.DispatcherTimer canvasUpdateTimer = new System.Windows.Threading.DispatcherTimer();
-            canvasUpdateTimer.Interval = TimeSpan.FromMilliseconds(10);
-            canvasUpdateTimer.Tick += requestNDI;
+            //System.Windows.Threading.DispatcherTimer canvasUpdateTimer = new System.Windows.Threading.DispatcherTimer();
+            //canvasUpdateTimer.Interval = TimeSpan.FromMilliseconds(10);
+            //canvasUpdateTimer.Tick += (a,b) => {
+            //    Console.WriteLine("CANVAS TICK");
+            //    requestNDI(null, null);
+            //};
 
-            theWhiteboard.GotMouseCapture += (a, b) =>
-            {
-                backgroundUpdateTimer.Stop();
-                canvasUpdateTimer.Start();
-            };
+            //theWhiteboard.GotMouseCapture += (a, b) =>
+            //{
+            //    backgroundUpdateTimer.Stop();
+            //    canvasUpdateTimer.Start();
+            //};
             
-            theWhiteboard.LostMouseCapture += (a, b) =>
-            {
-                backgroundUpdateTimer.Start();
-                canvasUpdateTimer.Stop();
-            };
+            //theWhiteboard.LostMouseCapture += (a, b) =>
+            //{
+            //    backgroundUpdateTimer.Start();
+            //    canvasUpdateTimer.Stop();
+            //};
 
-            backgroundUpdateTimer.Start();
+            //backgroundUpdateTimer.Start();
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
