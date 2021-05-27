@@ -16,6 +16,10 @@ namespace NDI_Telestrator
 
     public class WhiteboardCanvas : System.Windows.Controls.Canvas, INotifyPropertyChanged
     {
+
+
+
+
         internal class CanvasData
         {
             public CanvasData()
@@ -107,7 +111,7 @@ namespace NDI_Telestrator
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-     
+
 
 
 
@@ -159,8 +163,8 @@ namespace NDI_Telestrator
             canvas.Background = System.Windows.Media.Brushes.Transparent;
             canvas.UseCustomCursor = true;
             canvas.Cursor = this.Cursor;
-            canvas.Width = this.Width;
-            canvas.Height = this.Height;
+            canvas.Width = this.Width / 2;
+            canvas.Height = this.Height / 2;
             return canvas;
         }
 
@@ -169,8 +173,8 @@ namespace NDI_Telestrator
         {
             foreach (InkCanvas canvas in this.Children)
             {
-                canvas.Width = this.Width;
-                canvas.Height = this.Height;
+                canvas.Width = this.Width / 2;
+                canvas.Height = this.Height / 2;
             }
         }
 

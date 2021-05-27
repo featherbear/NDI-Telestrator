@@ -9,16 +9,53 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Brushes = System.Windows.Media.Brushes;
 using Forms = System.Windows.Forms;
-
+using CaptureSampleCore;
+using Composition.WindowsRuntimeHelpers;
+using Windows.Graphics.Capture;
+using Windows.Graphics.DirectX.Direct3D11;
 
 namespace NDI_Telestrator
 {
     public partial class MainWindow : MetroWindow
     {
 
+        private void StartHwndCapture()
+        {
+
+
+            Window window = Window.GetWindow(this);
+            IntPtr w = new System.Windows.Interop.WindowInteropHelper(window).EnsureHandle();
+
+            GraphicsCaptureItem item = CaptureHelper.CreateItemForWindow(w);
+            if (item != null)
+            {
+
+                 IDirect3DDevice device = Direct3D11Helper.CreateDevice();
+                BasicCapture capture = new BasicCapture(device, item);
+
+
+                capture.StartCapture();
+                capture.Captured += (object obj, someEvt d) =>
+                {
+                    Console.WriteLine(d.data);
+                };
+
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
         private void requestNDI(object caller, object args)
         {
-            ndi.requestFrameUpdate();
+           // ndi.requestFrameUpdate();
         }
         public MainWindow()
         {
@@ -50,6 +87,8 @@ namespace NDI_Telestrator
             };
 
             backgroundUpdateTimer.Start();
+
+
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
@@ -147,7 +186,9 @@ namespace NDI_Telestrator
 
         private void Btn_Options_Click(object sender, RoutedEventArgs e)
         {
-            optionsDialogue.IsOpen = !optionsDialogue.IsOpen;
+            StartHwndCapture();
+
+            //optionsDialogue.IsOpen = !optionsDialogue.IsOpen;
         }
     }
 }
