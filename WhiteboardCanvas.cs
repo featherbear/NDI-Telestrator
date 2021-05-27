@@ -15,6 +15,17 @@ namespace NDI_Telestrator
 
     public class WhiteboardCanvas : System.Windows.Controls.Canvas, INotifyPropertyChanged
     {
+
+        #region Property notifications
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        #endregion
+
+        #region CanvasData
         internal class CanvasData
         {
             public CanvasData()
@@ -23,10 +34,12 @@ namespace NDI_Telestrator
             }
             public Queue<Stroke> redoQueue;
         };
+        #endregion
 
         private double brushThickness = 1.0;
         private Color brushColor = Colors.Black;
 
+        #region activeInkCanvas
         private InkCanvas _activeInkCanvas;
         public InkCanvas activeInkCanvas
         {
@@ -38,9 +51,11 @@ namespace NDI_Telestrator
             {
                 _activeInkCanvas = value;
                 OnPropertyChanged();
+                stylusStrokeBuffer = null;
                 updateUndoRedoStates();
             }
         }
+        #endregion
 
         public List<InkCanvas> InkCanvases
         {
@@ -50,7 +65,6 @@ namespace NDI_Telestrator
                 foreach (InkCanvas canvas in Children)
                 {
                     result.Add(canvas);
-
                 }
                 return result;
             }
@@ -71,6 +85,7 @@ namespace NDI_Telestrator
             }
         }
 
+        #region hasRedoContent
         private bool _hasRedoContent;
         public bool hasRedoContent
         {
@@ -84,8 +99,9 @@ namespace NDI_Telestrator
                 OnPropertyChanged();
             }
         }
+        #endregion
 
-
+        #region hasUndoContent
         private bool _hasUndoContent;
         public bool hasUndoContent
         {
@@ -99,36 +115,25 @@ namespace NDI_Telestrator
                 OnPropertyChanged();
             }
         }
-
-        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-
-
-
-
-
+        #endregion
 
         public WhiteboardCanvas()
         {
             InitializeComponent();
-
         }
-        StylusPointCollection stylusStrokeBuffer;
 
+        // The stylus/touch ink doesn't get captured via the RenderTargetBitmap
+        // function so we'll add it to a Stroke that we add it in
+        StylusPointCollection stylusStrokeBuffer;
 
         private void InitializeComponent()
         {
             this.Background = System.Windows.Media.Brushes.Transparent;
+
             SizeChanged += WhiteboardCanvas_SizeChanged;
 
             addNewLayer();
             MouseDevice mouseDev = InputManager.Current.PrimaryMouseDevice;
-
 
             activeInkCanvas.LostMouseCapture += (a, b) =>
             {
