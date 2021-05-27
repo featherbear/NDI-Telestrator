@@ -37,6 +37,7 @@ namespace NDI_Telestrator
                 capture.StartCapture();
                 capture.Captured += (object obj, someEvt d) =>
                 {
+                    ndi.pushFrame(d.data);
                     Console.WriteLine(d.data);
                 };
 
@@ -55,7 +56,8 @@ namespace NDI_Telestrator
 
         private void requestNDI(object caller, object args)
         {
-           // ndi.requestFrameUpdate();
+            // ndi.requestFrameUpdate();
+            // ndi.pushData();
         }
         public MainWindow()
         {

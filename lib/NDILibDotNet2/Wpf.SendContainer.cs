@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace NewTek.NDI.WPF
-{    
+{
     public class NdiSendContainer : Viewbox, INotifyPropertyChanged, IDisposable
     {
         [Category("NewTek NDI"),
@@ -45,7 +45,7 @@ namespace NewTek.NDI.WPF
         }
         public static readonly DependencyProperty NdiFrameRateNumeratorProperty =
             DependencyProperty.Register("NdiFrameRateNumerator", typeof(int), typeof(NdiSendContainer), new PropertyMetadata(60000));
-        
+
         [Category("NewTek NDI"),
         Description("NDI output frame rate denominator. Required.")]
         public int NdiFrameRateDenominator
@@ -121,7 +121,7 @@ namespace NewTek.NDI.WPF
                 {
                     isPausedValue = value;
                     NotifyPropertyChanged("IsSendPaused");
-                } 
+                }
             }
         }
 
@@ -148,7 +148,7 @@ namespace NewTek.NDI.WPF
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
-        }        
+        }
 
         public NdiSendContainer()
         {
@@ -168,7 +168,7 @@ namespace NewTek.NDI.WPF
                 // you can check this directly with a call to NDIlib.is_supported_CPU()
                 MessageBox.Show("Cannot run NDI");
             }
-            
+
         }
 
         public void Dispose()
@@ -177,7 +177,7 @@ namespace NewTek.NDI.WPF
             GC.SuppressFinalize(this);
         }
 
-        ~NdiSendContainer() 
+        ~NdiSendContainer()
         {
             Dispose(false);
         }
@@ -211,7 +211,7 @@ namespace NewTek.NDI.WPF
 
                     pendingFrames.Dispose();
                 }
-                
+
                 // Destroy the NDI sender
                 if (sendInstancePtr != IntPtr.Zero)
                 {
@@ -228,13 +228,13 @@ namespace NewTek.NDI.WPF
         }
 
         private bool _disposed = false;
-        
+
         public void requestFrameUpdate()
         {
             OnCompositionTargetRendering(null, null);
         }
 
-        private void OnCompositionTargetRendering(object sender, EventArgs e)
+        public void pushFrame(SharpDX.WIC.BitmapSource data)
         {
             if (IsSendPaused)
                 return;
@@ -252,28 +252,11 @@ namespace NewTek.NDI.WPF
             if (sendInstancePtr == IntPtr.Zero || xres < 8 || yres < 8)
                 return;
 
-            if (targetBitmap == null || targetBitmap.PixelWidth != xres || targetBitmap.PixelHeight != yres)
-            {
-                // Create a properly sized RenderTargetBitmap
-                targetBitmap = new RenderTargetBitmap(xres, yres, 96, 96, PixelFormats.Pbgra32);
 
-                fmtConvertedBmp = new FormatConvertedBitmap();
-                fmtConvertedBmp.BeginInit();
-                fmtConvertedBmp.Source = targetBitmap;
-                fmtConvertedBmp.DestinationFormat = PixelFormats.Bgra32;
-                fmtConvertedBmp.EndInit();
-            }
-
-            // clear to prevent trails
-            targetBitmap.Clear();
-
-            // render the content into the bitmap
-            targetBitmap.Render(this.Child);
-
-            stride = (xres * 32/*BGRA bpp*/ + 7) / 8;
+           stride = (xres * 32/*BGRA bpp*/ + 7) / 8;
             bufferSize = yres * stride;
             aspectRatio = (float)xres / (float)yres;
-            
+
             // allocate some memory for a video buffer
             IntPtr bufferPtr = Marshal.AllocHGlobal(bufferSize);
 
@@ -311,20 +294,113 @@ namespace NewTek.NDI.WPF
             else
             {
                 // copy the pixels into the buffer
-                targetBitmap.CopyPixels(new Int32Rect(0, 0, xres, yres), bufferPtr, bufferSize, stride);
+                //targetBitmap.CopyPixels(new Int32Rect(0, 0, xres, yres), bufferPtr, bufferSize, stride);
+                data.CopyPixels(stride, bufferPtr, bufferSize);
+                Console.WriteLine("lol?");
+
             }
 
             // add it to the output queue
             AddFrame(videoFrame);
         }
-        
+
+
+
+        private void OnCompositionTargetRendering(object sender, EventArgs e)
+        {
+            if (IsSendPaused)
+                return;
+
+            if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(this))
+                return;
+
+            int xres = NdiWidth;
+            int yres = NdiHeight;
+
+            int frNum = NdiFrameRateNumerator;
+            int frDen = NdiFrameRateDenominator;
+
+            // sanity
+            if (sendInstancePtr == IntPtr.Zero || xres < 8 || yres < 8)
+                return;
+
+         
+                if (targetBitmap == null || targetBitmap.PixelWidth != xres || targetBitmap.PixelHeight != yres)
+                {
+                    // Create a properly sized RenderTargetBitmap
+                    targetBitmap = new RenderTargetBitmap(xres, yres, 96, 96, PixelFormats.Pbgra32);
+
+                    fmtConvertedBmp = new FormatConvertedBitmap();
+                    fmtConvertedBmp.BeginInit();
+                    fmtConvertedBmp.Source = targetBitmap;
+                    fmtConvertedBmp.DestinationFormat = PixelFormats.Bgra32;
+                    fmtConvertedBmp.EndInit();
+                }
+
+
+                // clear to prevent trails
+                targetBitmap.Clear();
+
+                // render the content into the bitmap
+                targetBitmap.Render(this.Child);
+            
+                
+
+            stride = (xres * 32/*BGRA bpp*/ + 7) / 8;
+            bufferSize = yres * stride;
+            aspectRatio = (float)xres / (float)yres;
+
+            // allocate some memory for a video buffer
+            IntPtr bufferPtr = Marshal.AllocHGlobal(bufferSize);
+
+            // We are going to create a progressive frame at 60Hz.
+            NDIlib.video_frame_v2_t videoFrame = new NDIlib.video_frame_v2_t()
+            {
+                // Resolution
+                xres = NdiWidth,
+                yres = NdiHeight,
+                // Use BGRA video
+                FourCC = NDIlib.FourCC_type_e.FourCC_type_BGRA,
+                // The frame-eate
+                frame_rate_N = frNum,
+                frame_rate_D = frDen,
+                // The aspect ratio
+                picture_aspect_ratio = aspectRatio,
+                // This is a progressive frame
+                frame_format_type = NDIlib.frame_format_type_e.frame_format_type_progressive,
+                // Timecode.
+                timecode = NDIlib.send_timecode_synthesize,
+                // The video memory used for this frame
+                p_data = bufferPtr,
+                // The line to line stride of this image
+                line_stride_in_bytes = stride,
+                // no metadata
+                p_metadata = IntPtr.Zero,
+                // only valid on received frames
+                timestamp = 0
+            };
+
+            if (UnPremultiply && fmtConvertedBmp != null)
+            {
+                fmtConvertedBmp.CopyPixels(new Int32Rect(0, 0, xres, yres), bufferPtr, bufferSize, stride);
+            }
+            else
+            {
+                    // copy the pixels into the buffer
+                    targetBitmap.CopyPixels(new Int32Rect(0, 0, xres, yres), bufferPtr, bufferSize, stride);
+            }
+
+            // add it to the output queue
+            AddFrame(videoFrame);
+        }
+
         private static void OnNdiSenderPropertyChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             NdiSendContainer s = sender as NdiSendContainer;
             if (s != null)
                 s.InitializeNdi();
         }
-        
+
         private void InitializeNdi()
         {
             if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(this))
@@ -385,7 +461,7 @@ namespace NewTek.NDI.WPF
                 Monitor.Exit(sendInstanceLock);
             }
         }
-        
+
         // the receive thread runs though this loop until told to exit
         private void SendThreadProc()
         {
@@ -406,10 +482,10 @@ namespace NewTek.NDI.WPF
                     {
                         // unlock
                         Monitor.Exit(sendInstanceLock);
-                        
+
                         // give up some time
                         Thread.Sleep(20);
-                        
+
                         // loop again
                         continue;
                     }
