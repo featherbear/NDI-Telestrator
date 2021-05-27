@@ -14,7 +14,8 @@ namespace NDI_Telestrator
 {
 
 
-    public class WhiteboardCanvas : System.Windows.Controls.Canvas, INotifyPropertyChanged
+    // TODO: TURN BACK TO Canvas
+    public class WhiteboardCanvas : System.Windows.Controls.Grid, INotifyPropertyChanged
     {
         internal class CanvasData
         {
@@ -107,7 +108,7 @@ namespace NDI_Telestrator
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-     
+
 
 
 
@@ -117,8 +118,10 @@ namespace NDI_Telestrator
         public WhiteboardCanvas()
         {
             InitializeComponent();
+
         }
 
+        StylusPointCollection collection;
 
         private void InitializeComponent()
         {
@@ -126,13 +129,89 @@ namespace NDI_Telestrator
             SizeChanged += WhiteboardCanvas_SizeChanged;
 
             addNewLayer();
+            MouseDevice mouseDev = InputManager.Current.PrimaryMouseDevice;
 
-            LostMouseCapture += (a, b) =>
+
+            activeInkCanvas.LostMouseCapture += (a, b) =>
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InkCanvases2"));
+            };
 
-            }
-            ;
+
+
+            //GotStylusCapture += (a, b) =>
+            //{
+            //    Console.WriteLine("Got stylus");
+            //};
+
+            //LostStylusCapture += (a, b) =>
+            //{
+            //    Console.WriteLine("Lost stylus");
+            //};
+     
+
+            //activeInkCanvas.
+            //            PreviewMouseDown += (a, b) => Console.WriteLine("PreviewMouseDown");
+            //activeInkCanvas.MouseDown += (a, b) => { Console.WriteLine("MouseDown");  b. };
+
+
+            //activeInkCanvas.PreviewMouseUp += (a, b) => Console.WriteLine("PreviewMouseUp");
+            //activeInkCanvas.MouseUp += (a, b) => Console.WriteLine("MouseUp\n-------------------");
+
+            //acti
+
+            //activeInkCanvas.PreviewStylusButtonDown += (a, b) =>
+            //{
+            //    b.Handled = true;
+            //    Console.WriteLine(" PreviewStylusButtonDown");
+            //};
+            //activeInkCanvas.StylusButtonDown += (a, b) =>
+            //{
+            //    b.Handled = true;
+            //    Console.WriteLine("  StylusButtonDown");
+            //};
+
+            //activeInkCanvas.PreviewStylusDown += (a, b) =>
+            //{
+            //    b.Handled = true;
+            //};
+            //activeInkCanvas.StylusDown += (a, b) =>
+            //{
+            //    b.Handled = true;
+            //};
+
+
+            //activeInkCanvas.PreviewMouseMove += (a, b) =>
+            //{
+            //    b.Handled = true;
+            //};
+            //activeInkCanvas.MouseMove += (a, b) =>
+            //{
+            //    b.Handled = true;
+            //};
+
+
+            activeInkCanvas.PreviewStylusMove += (a, b) =>
+            {
+                //MouseDevice mouseDev = ;
+                activeInkCanvas.RaiseEvent(new MouseEventArgs(InputManager.Current.PrimaryMouseDevice, b.Timestamp)
+                {
+                    RoutedEvent = Mouse.PreviewMouseMoveEvent,
+
+                });
+                //b.StylusDevice
+                b.Handled = true;
+            };
+            activeInkCanvas.StylusMove += (a, b) =>
+            {
+                activeInkCanvas.RaiseEvent(new MouseEventArgs(InputManager.Current.PrimaryMouseDevice, b.Timestamp)
+                {
+                    RoutedEvent = Mouse.MouseMoveEvent,
+
+                });
+                b.Handled = true;
+            };
+
         }
 
         public void addNewLayer()
