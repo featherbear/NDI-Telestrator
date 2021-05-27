@@ -135,33 +135,52 @@ namespace NDI_Telestrator
             activeInkCanvas.LostMouseCapture += (a, b) =>
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InkCanvases2"));
-                Console.WriteLine("lost capture" + activeInkCanvas.Strokes.Count);
             };
-            
+
             activeInkCanvas.PreviewStylusDown += (a, b) =>
             {
                 activeInkCanvas.Strokes.Add(new Stroke(stylusStrokeBuffer = b.StylusDevice.GetStylusPoints(activeInkCanvas), activeInkCanvas.DefaultDrawingAttributes));
-                b.Handled = true;
+
+                // Handling here slows the rendering
+                // But not handling adds a 1-pixel (or so) stroke
+                // EDIT: If PreviewStylusUp is handled, the 1-pixel stroke is not added
+                // b.Handled = true;
             };
 
             // Cancel mouse down event if the stylus was used (Prevents single pixel stroke)
             activeInkCanvas.PreviewMouseDown += (a, b) => { if (stylusStrokeBuffer != null) b.Handled = true; };
 
-            activeInkCanvas.PreviewStylusUp += (a, b) =>
-             {
-                 // Clear the buffer when the stylus is lifted
-                 stylusStrokeBuffer = null;
+            //activeInkCanvas.PreviewStylusUp += (a, b) =>
+            // {
+            //     // Clear the buffer when the stylus is lifted
+            //     // stylusStrokeBuffer = null;
 
-                 // Manually trigger the stroke collected event
-                 activeInkCanvas.RaiseEvent(new InkCanvasStrokeCollectedEventArgs(activeInkCanvas.Strokes[activeInkCanvas.Strokes.Count - 1]) { RoutedEvent = InkCanvas.StrokeCollectedEvent });
-             };
+            //     // Manually trigger events
+            //     // activeInkCanvas.RaiseEvent(new InkCanvasStrokeCollectedEventArgs(activeInkCanvas.Strokes[activeInkCanvas.Strokes.Count - 1]) { RoutedEvent = InkCanvas.StrokeCollectedEvent });
+
+            //     // Blocking this event stops the 1-pixel stroke from being added
+            //     // But currently breaks mouse use (need to release the stylus / mouse?)
+            //     // EDIT: For now we'll just remove it I guess..
+            //     // b.Handled = true;
+            // };
+
+            // The 1-pixel stroke gets added somewhere between PreviewStylusUp and StylusUp
+
+            activeInkCanvas.StylusUp += (a, b) =>
+            {
+                // Remove the last stroke (1)
+                stylusStrokeBuffer = null;
+                activeInkCanvas.Strokes.RemoveAt(activeInkCanvas.Strokes.Count - 1);
+
+                activeInkCanvas.RaiseEvent(new InkCanvasStrokeCollectedEventArgs(activeInkCanvas.Strokes[activeInkCanvas.Strokes.Count - 1]) { RoutedEvent = InkCanvas.StrokeCollectedEvent });
+            };
 
             activeInkCanvas.PreviewStylusMove += (a, b) =>
             {
                 // Add points to the buffer
                 stylusStrokeBuffer.Add(b.StylusDevice.GetStylusPoints(activeInkCanvas));
 
-                // This override blocks the delayed ink from being added to the point
+                // Blocks events that would populate the 1-pixel stroke
                 b.Handled = true;
             };
         }
