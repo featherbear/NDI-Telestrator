@@ -27,6 +27,9 @@ namespace NDI_Telestrator
             optionsDialogue.whiteboard = theWhiteboard;
             optionsDialogue.background = theBackground;
 
+
+        
+
             // Send background updates every 250ms
             System.Windows.Threading.DispatcherTimer backgroundUpdateTimer = new System.Windows.Threading.DispatcherTimer();
             backgroundUpdateTimer.Interval = TimeSpan.FromMilliseconds(250);
@@ -37,17 +40,23 @@ namespace NDI_Telestrator
             canvasUpdateTimer.Interval = TimeSpan.FromMilliseconds(10);
             canvasUpdateTimer.Tick += requestNDI;
 
+                        // Switch from the canvas update timer to the background update timer after 1 second
+            System.Windows.Threading.DispatcherTimer backgroundUpdateTransitionTimer = new System.Windows.Threading.DispatcherTimer();
+            backgroundUpdateTransitionTimer.Interval = TimeSpan.FromSeconds(1);
+            backgroundUpdateTransitionTimer.Tick += (a, b) =>
+            {
+                backgroundUpdateTransitionTimer.Stop(); // Turn off after the tick
+                backgroundUpdateTimer.Start();
+                canvasUpdateTimer.Stop();
+            };
+
             theWhiteboard.GotMouseCapture += (a, b) =>
             {
                 backgroundUpdateTimer.Stop();
                 canvasUpdateTimer.Start();
             };
             
-            theWhiteboard.LostMouseCapture += (a, b) =>
-            {
-                backgroundUpdateTimer.Start();
-                canvasUpdateTimer.Stop();
-            };
+            theWhiteboard.LostMouseCapture += (a, b) => backgroundUpdateTransitionTimer.Start();
 
             backgroundUpdateTimer.Start();
         }
