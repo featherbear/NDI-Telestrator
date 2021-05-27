@@ -80,7 +80,7 @@ namespace NDI_Telestrator
         {
             // Cancel mouse down event if the stylus was used (Prevents single pixel stroke)
             if (stylusStrokeBuffer != null) e.Handled = true;
-            base.OnPreviewMouseDown(e);
+            else base.OnPreviewMouseDown(e);
         }
 
         //protected override void OnPreviewStylusUp(StylusEventArgs e)
@@ -117,7 +117,7 @@ namespace NDI_Telestrator
 
             // Blocks events that would populate the 1-pixel stroke
             e.Handled = true;
-            base.OnPreviewStylusMove(e);
+            //base.OnPreviewStylusMove(e);
         }
     }
 }
