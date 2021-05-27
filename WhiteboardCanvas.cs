@@ -120,8 +120,8 @@ namespace NDI_Telestrator
             InitializeComponent();
 
         }
+        StylusPointCollection stylusStrokeBuffer;
 
-        StylusPointCollection collection;
 
         private void InitializeComponent()
         {
@@ -135,52 +135,35 @@ namespace NDI_Telestrator
             activeInkCanvas.LostMouseCapture += (a, b) =>
             {
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InkCanvases2"));
+                Console.WriteLine("lost capture" + activeInkCanvas.Strokes.Count);
             };
-
-
-
-            //GotStylusCapture += (a, b) =>
-            //{
-            //    Console.WriteLine("Got stylus");
-            //};
-
-            //LostStylusCapture += (a, b) =>
-            //{
-            //    Console.WriteLine("Lost stylus");
-            //};
-            activeInkCanvas.StrokeCollected += (a, b) =>
-            {
-                Console.WriteLine("Stroke get");
-            };
-
+            
             activeInkCanvas.PreviewStylusDown += (a, b) =>
             {
-                collection = b.StylusDevice.GetStylusPoints(activeInkCanvas);
-                Console.WriteLine("Stylus is down");
-                activeInkCanvas.Strokes.Add(new Stroke(collection));
+                activeInkCanvas.Strokes.Add(new Stroke(stylusStrokeBuffer = b.StylusDevice.GetStylusPoints(activeInkCanvas)));
+                b.Handled = true;
             };
-            activeInkCanvas.StylusUp+= (a, b) =>
-            {
-                Console.WriteLine("Stylus is up");
-                collection = null;
-            };
+
+            // Cancel mouse down event if the stylus was used (Prevents single pixel stroke)
+            activeInkCanvas.PreviewMouseDown += (a, b) => { if (stylusStrokeBuffer != null) b.Handled = true; };
+
+            activeInkCanvas.PreviewStylusUp += (a, b) =>
+             {
+                 // Clear the buffer when the stylus is lifted
+                 stylusStrokeBuffer = null;
+
+                 // Manually trigger the stroke collected event
+                 activeInkCanvas.RaiseEvent(new InkCanvasStrokeCollectedEventArgs(activeInkCanvas.Strokes[activeInkCanvas.Strokes.Count - 1]) { RoutedEvent = InkCanvas.StrokeCollectedEvent });
+             };
 
             activeInkCanvas.PreviewStylusMove += (a, b) =>
             {
-                collection.Add(b.StylusDevice.GetStylusPoints(activeInkCanvas));
-                b.Handled = true;
-                Console.WriteLine("Stylus move " + activeInkCanvas.Strokes.Count);
-            };
+                // Add points to the buffer
+                stylusStrokeBuffer.Add(b.StylusDevice.GetStylusPoints(activeInkCanvas));
 
-            activeInkCanvas.PreviewStylusMove += (a, b) =>
-            {
+                // This override blocks the delayed ink from being added to the point
                 b.Handled = true;
             };
-            activeInkCanvas.StylusMove += (a, b) =>
-            {
-                b.Handled = true;
-            };
-
         }
 
         public void addNewLayer()
