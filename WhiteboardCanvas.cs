@@ -13,9 +13,7 @@ using System.Windows.Shapes;
 namespace NDI_Telestrator
 {
 
-
-    // TODO: TURN BACK TO Canvas
-    public class WhiteboardCanvas : System.Windows.Controls.Grid, INotifyPropertyChanged
+    public class WhiteboardCanvas : System.Windows.Controls.Canvas, INotifyPropertyChanged
     {
         internal class CanvasData
         {
