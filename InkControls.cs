@@ -193,7 +193,7 @@ namespace NDI_Telestrator
             {
 
 
-                b = Draw(whiteboard.InkCanvases.Select(c => c.Strokes).ToArray(), whiteboard.Background == Brushes.Transparent ? Brushes.White : whiteboard.Background);
+                b = Draw(whiteboard.InkLayers.Select(c => c.Strokes).ToArray(), whiteboard.Background == Brushes.Transparent ? Brushes.White : whiteboard.Background);
                 JpegBitmapEncoder j = new JpegBitmapEncoder();
                 j.Frames.Add(b);
 
@@ -205,7 +205,7 @@ namespace NDI_Telestrator
             }
             else
             {
-                b = Draw(whiteboard.InkCanvases.Select(c => c.Strokes).ToArray(), Brushes.Transparent);
+                b = Draw(whiteboard.InkLayers.Select(c => c.Strokes).ToArray(), Brushes.Transparent);
                 PngBitmapEncoder p = new PngBitmapEncoder();
                 p.Frames.Add(b);
 
@@ -223,15 +223,8 @@ namespace NDI_Telestrator
 
         public static void setActiveLayer(int index)
         {
-            if (index >= whiteboard.Children.Count)
-            {
-                Console.WriteLine("Got index " + index + " but child count is " + whiteboard.Children.Count);
-                return;
-                throw new Exception("OOB");
-            }
-
-            whiteboard.activeInkCanvas = (InkLayer)whiteboard.Children[index];
-            Console.WriteLine("Set active");
+            whiteboard.setActive(index);
         }
+         
     }
 }

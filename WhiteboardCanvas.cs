@@ -47,31 +47,16 @@ namespace NDI_Telestrator
         }
         #endregion
 
-        public List<InkCanvas> InkCanvases
+        public List<InkLayer> InkLayers
         {
             get
             {
-                List<InkCanvas> result = new List<InkCanvas>();
-                foreach (InkCanvas canvas in Children)
+                List<InkLayer> result = new List<InkLayer>();
+                foreach (InkLayer canvas in Children)
                 {
                     result.Add(canvas);
                 }
                 return result;
-            }
-        }
-
-        private List<int> _inkCanveses2;
-        public List<int> InkCanvases2
-        {
-            get
-            {
-                List<InkCanvas> result = new List<InkCanvas>();
-                foreach (InkCanvas canvas in Children)
-                {
-                    result.Add(canvas);
-
-                }
-                return result.Select(e => e.Strokes.Count).ToList();
             }
         }
 
@@ -119,20 +104,26 @@ namespace NDI_Telestrator
             addNewLayer();
         }
 
+        private void _notifyUpdate(InkLayer layer = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InkLayers"));
+            CanvasUpdated?.Invoke(this, layer);
+        }
+
         public void addNewLayer()
         {
-            InkLayer canvas = new InkLayer(this);
-            canvas.LayerUpdated += (layer, _) =>
+            InkLayer layer = new InkLayer(this);
+
+            layer.LayerUpdated += (_, __) =>
             {
                 updateUndoRedoStates();
-                CanvasUpdated?.Invoke(this, (InkLayer) layer);
+                _notifyUpdate(layer);
             };
-            this.Children.Add(canvas);
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InkCanvases"));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InkCanvases2"));
+            this.Children.Add(layer);
+            setActive(layer);
 
-            activeInkCanvas = canvas;
+            _notifyUpdate();
         }
 
         private void setPenAttributes(Color color, double size)
@@ -186,7 +177,7 @@ namespace NDI_Telestrator
 
         public void Undo()
         {
-                activeInkCanvas.Undo();
+            activeInkCanvas.Undo();
         }
 
         public void Redo()
@@ -205,5 +196,20 @@ namespace NDI_Telestrator
             activeInkCanvas.Strokes.Clear();
         }
 
+        public void setActive(InkLayer layer)
+        {
+            if (!Children.Contains(layer)) throw new Exception("Could not find requested layer in canvas");
+
+            foreach (InkLayer l in Children) l.IsHitTestVisible = l == layer;
+            activeInkCanvas = layer;
+        }
+
+        public void setActive(int index)
+        {
+            if (index >= Children.Count) throw new IndexOutOfRangeException("Got index " + index + " but max index is " + (Children.Count - 1));
+
+            for (int i = 0; i < Children.Count; i++) Children[i].IsHitTestVisible = i == index;
+            activeInkCanvas = (InkLayer)Children[index];
+        }
     }
 }

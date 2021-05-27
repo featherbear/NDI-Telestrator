@@ -136,44 +136,28 @@ namespace NDI_Telestrator
 
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
-                        ListBox obj = (ListBox) sender;
+            // TODO: Persist visible selection 
+            ListBox obj = (ListBox)sender;
 
             if (obj.SelectedIndex == -1) return;
             selectedIndex = obj.SelectedIndex;
 
-            if (selectedIndex >= obj.Items.Count) {
-                Console.WriteLine("uh");
-                return; }
             InkControls.setActiveLayer(obj.Items.Count - selectedIndex - 1);
-            
         }
 
         private int _selectedIndex = 0;
         public int selectedIndex
         {
             get { return _selectedIndex; }
-            set {
-
+            set
+            {
                 Console.WriteLine("UPDATE");
-                _selectedIndex = value; 
-                OnPropertyChanged(); }
+                _selectedIndex = value;
+                OnPropertyChanged();
+            }
         }
     }
 
 
 
-    public class ReverseConverterX : IValueConverter
-    // https://stackoverflow.com/a/7506217
-    {
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            return ((IEnumerable<int>)value).Reverse();
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
 }

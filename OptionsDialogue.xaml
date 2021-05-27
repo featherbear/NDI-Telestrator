@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:XAMLConverters="clr-namespace:NDI_Telestrator.XAMLConverters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:enums="clr-namespace:NDI_Telestrator.Enums"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
@@ -17,7 +18,7 @@
     Position="Right"
     mc:Ignorable="d">
     <Controls:Flyout.Resources>
-        <telestrator:ReverseConverterX x:Key="ReverseConverter" />
+        <XAMLConverters:ReverseConverter x:Key="ReverseConverter" />
     </Controls:Flyout.Resources>
     <StackPanel>
 
@@ -109,7 +110,8 @@
                 </Button>
             </Border>
             <ListBox
-                ItemsSource="{Binding whiteboard.InkCanvases2, Converter={StaticResource ReverseConverter}, ElementName=optionsDialogue}"
+                DisplayMemberPath="Strokes.Count"
+                ItemsSource="{Binding whiteboard.InkLayers, Converter={StaticResource ReverseConverter}, ElementName=optionsDialogue}"
                 SelectedIndex="{Binding selectedIndex}"
                 SelectionChanged="ListBox_SelectionChanged" />
             <StackPanel Name="ABC" />
