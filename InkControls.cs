@@ -229,7 +229,8 @@ namespace NDI_Telestrator
                 return;
                 throw new Exception("OOB");
             }
-            whiteboard.activeInkCanvas = (InkCanvas)whiteboard.Children[index];
+
+            whiteboard.activeInkCanvas = (InkLayer)whiteboard.Children[index];
             Console.WriteLine("Set active");
         }
     }

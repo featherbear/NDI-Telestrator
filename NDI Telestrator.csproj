@@ -102,6 +102,7 @@
     </ApplicationDefinition>
     <Compile Include="BackgroundView.cs" />
     <Compile Include="InkControls.cs" />
+    <Compile Include="InkLayer.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="OptionsDialogue.xaml.cs">
       <DependentUpon>OptionsDialogue.xaml</DependentUpon>
