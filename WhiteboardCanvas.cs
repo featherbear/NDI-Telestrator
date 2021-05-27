@@ -140,7 +140,7 @@ namespace NDI_Telestrator
             
             activeInkCanvas.PreviewStylusDown += (a, b) =>
             {
-                activeInkCanvas.Strokes.Add(new Stroke(stylusStrokeBuffer = b.StylusDevice.GetStylusPoints(activeInkCanvas)));
+                activeInkCanvas.Strokes.Add(new Stroke(stylusStrokeBuffer = b.StylusDevice.GetStylusPoints(activeInkCanvas), activeInkCanvas.DefaultDrawingAttributes));
                 b.Handled = true;
             };
 
