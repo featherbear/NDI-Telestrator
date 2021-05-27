@@ -41,7 +41,6 @@ namespace NDI_Telestrator
             {
                 redoQueue.Enqueue(Strokes.Last());
                 Strokes.RemoveAt(Strokes.Count - 1);
-
                 LayerUpdated?.Invoke(this, null);
             }
         }
@@ -51,7 +50,6 @@ namespace NDI_Telestrator
             if (redoQueue.Count > 0)
             {
                 Strokes.Add(redoQueue.Dequeue());
-
                 LayerUpdated?.Invoke(this, null);
             }
         }
