@@ -16,6 +16,9 @@
     IsOpen="{Binding IsOpen}"
     Position="Right"
     mc:Ignorable="d">
+    <Controls:Flyout.Resources>
+        <telestrator:ReverseConverterX x:Key="ReverseConverter" />
+    </Controls:Flyout.Resources>
     <StackPanel>
 
         <Border
@@ -89,6 +92,29 @@
             <StackPanel Orientation="Horizontal">
                 <Controls:ToggleSwitch IsChecked="{Binding Source={x:Static telestrator:Options.quickSaveEnabled}, Path=.}" IsCheckedChanged="ToggleSwitch_IsCheckedChanged" />
             </StackPanel>
+        </StackPanel>
+
+        <StackPanel Margin="10">
+            <TextBlock Style="{StaticResource MaterialDesignTitleTextBlock}" Text="Layers" />
+            <Border BorderBrush="Transparent" BorderThickness="0,0,0,3">
+                <Button
+                    Width="30"
+                    Height="32"
+                    VerticalAlignment="Bottom"
+                    materialDesign:RippleAssist.IsCentered="True"
+                    Click="onBtnCreateLayer"
+                    ClipToBounds="True"
+                    Style="{StaticResource MaterialDesignToolForegroundButton}">
+                    <materialDesign:PackIcon Kind="PlusBox" />
+                </Button>
+            </Border>
+            <ListBox
+                ItemsSource="{Binding whiteboard.InkCanvases2, Converter={StaticResource ReverseConverter}, ElementName=optionsDialogue}"
+                SelectedIndex="{Binding selectedIndex}"
+                SelectionChanged="ListBox_SelectionChanged" />
+            <StackPanel Name="ABC" />
+
+
         </StackPanel>
     </StackPanel>
 </Controls:Flyout>

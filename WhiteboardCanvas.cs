@@ -12,12 +12,65 @@ using System.Windows.Shapes;
 
 namespace NDI_Telestrator
 {
+
+
     public class WhiteboardCanvas : System.Windows.Controls.Canvas, INotifyPropertyChanged
     {
+        internal class CanvasData
+        {
+            public CanvasData()
+            {
+                redoQueue = new Queue<Stroke>();
+            }
+            public Queue<Stroke> redoQueue;
+        };
 
         private double brushThickness = 1.0;
         private Color brushColor = Colors.Black;
-        public InkCanvas inkCanvas;
+
+        private InkCanvas _activeInkCanvas;
+        public InkCanvas activeInkCanvas
+        {
+            get
+            {
+                return _activeInkCanvas;
+            }
+            set
+            {
+                _activeInkCanvas = value;
+                OnPropertyChanged();
+                updateUndoRedoStates();
+            }
+        }
+
+        public List<InkCanvas> InkCanvases
+        {
+            get
+            {
+                List<InkCanvas> result = new List<InkCanvas>();
+                foreach (InkCanvas canvas in Children)
+                {
+                    result.Add(canvas);
+
+                }
+                return result;
+            }
+        }
+
+        private List<int> _inkCanveses2;
+        public List<int> InkCanvases2
+        {
+            get
+            {
+                List<InkCanvas> result = new List<InkCanvas>();
+                foreach (InkCanvas canvas in Children)
+                {
+                    result.Add(canvas);
+
+                }
+                return result.Select(e => e.Strokes.Count).ToList();
+            }
+        }
 
         private bool _hasRedoContent;
         public bool hasRedoContent
@@ -52,10 +105,13 @@ namespace NDI_Telestrator
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+
         public event PropertyChangedEventHandler PropertyChanged;
+     
 
 
-        private Queue<Stroke> redoQueue = new Queue<Stroke>();
+
+
 
 
         public WhiteboardCanvas()
@@ -63,35 +119,59 @@ namespace NDI_Telestrator
             InitializeComponent();
         }
 
+
         private void InitializeComponent()
         {
-            inkCanvas = new InkCanvas();
-
-            // Clear the redo queue on new stroke input
-            // TODO: Check if working wtih stroke move / copy / drag
-            inkCanvas.StrokeCollected += (sender, args) =>
-            {
-                redoQueue.Clear();
-                updateUndoRedoStates();
-            };
-
-
             this.Background = System.Windows.Media.Brushes.Transparent;
-            inkCanvas.Background = System.Windows.Media.Brushes.Transparent;
-
             SizeChanged += WhiteboardCanvas_SizeChanged;
 
-            inkCanvas.UseCustomCursor = true;
-            inkCanvas.Cursor = this.Cursor;
+            addNewLayer();
 
-            this.Children.Add(inkCanvas);
+            LostMouseCapture += (a, b) =>
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InkCanvases2"));
+
+            }
+            ;
         }
+
+        public void addNewLayer()
+        {
+            InkCanvas canvas = CreateLayer();
+            this.Children.Add(canvas);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InkCanvases"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InkCanvases2"));
+
+            activeInkCanvas = canvas;
+        }
+        private InkCanvas CreateLayer()
+        {
+            InkCanvas canvas = new InkCanvas();
+            // Clear the redo queue on new stroke input
+            // TODO: Check if working wtih stroke move / copy / drag
+            canvas.Tag = new CanvasData();
+
+            canvas.StrokeCollected += (sender, args) =>
+            {
+                ((CanvasData)canvas.Tag).redoQueue.Clear();
+                updateUndoRedoStates();
+            };
+            canvas.Background = System.Windows.Media.Brushes.Transparent;
+            canvas.UseCustomCursor = true;
+            canvas.Cursor = this.Cursor;
+            canvas.Width = this.Width;
+            canvas.Height = this.Height;
+            return canvas;
+        }
+
 
         private void WhiteboardCanvas_SizeChanged(object sender, System.Windows.SizeChangedEventArgs e)
         {
-            // make sure the ink canvas also changes
-            inkCanvas.Width = this.Width;
-            inkCanvas.Height = this.Height;
+            foreach (InkCanvas canvas in this.Children)
+            {
+                canvas.Width = this.Width;
+                canvas.Height = this.Height;
+            }
         }
 
         private void setPenAttributes(Color color, double size)
@@ -105,7 +185,7 @@ namespace NDI_Telestrator
             //inkDA.IsHighlighter = true;
             // inkDA.IgnorePressure
 
-            inkCanvas.DefaultDrawingAttributes = inkDA;
+            activeInkCanvas.DefaultDrawingAttributes = inkDA;
             //__setPenAttributes(color, size);
         }
 
@@ -122,12 +202,6 @@ namespace NDI_Telestrator
 
         //    inkCanvas.Select(new StrokeCollection());
         //}
-
-        private void TODO()
-        {
-            // Layers
-        }
-
 
 
         public void SetPenColor(Color color)
@@ -151,10 +225,10 @@ namespace NDI_Telestrator
 
         public void Undo()
         {
-            if (inkCanvas.Strokes.Count > 0)
+            if (activeInkCanvas.Strokes.Count > 0)
             {
-                redoQueue.Enqueue(inkCanvas.Strokes.Last());
-                inkCanvas.Strokes.RemoveAt(inkCanvas.Strokes.Count - 1);
+                ((CanvasData)activeInkCanvas.Tag).redoQueue.Enqueue(activeInkCanvas.Strokes.Last());
+                activeInkCanvas.Strokes.RemoveAt(activeInkCanvas.Strokes.Count - 1);
 
                 updateUndoRedoStates();
             }
@@ -162,22 +236,22 @@ namespace NDI_Telestrator
 
         public void Redo()
         {
-            if (redoQueue.Count > 0)
+            if (((CanvasData)activeInkCanvas.Tag).redoQueue.Count > 0)
             {
-                inkCanvas.Strokes.Add(redoQueue.Dequeue());
+                activeInkCanvas.Strokes.Add(((CanvasData)activeInkCanvas.Tag).redoQueue.Dequeue());
                 updateUndoRedoStates();
             }
         }
 
         public void updateUndoRedoStates()
         {
-            hasUndoContent = inkCanvas.Strokes.Count > 0;
-            hasRedoContent = redoQueue.Count > 0;
+            hasUndoContent = activeInkCanvas.Strokes.Count > 0;
+            hasRedoContent = ((CanvasData)activeInkCanvas.Tag).redoQueue.Count > 0;
         }
 
         public void Clear()
         {
-            inkCanvas.Strokes.Clear();
+            activeInkCanvas.Strokes.Clear();
         }
 
     }

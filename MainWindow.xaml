@@ -21,9 +21,6 @@
         </Controls:FlyoutsControl>
     </Controls:MetroWindow.Flyouts>
     <StackPanel>
-        <StackPanel Name="ABC" Orientation="Horizontal" />
-
-
         <Grid Margin="0,0,0,-6" HorizontalAlignment="Center">
 
             <Grid.RowDefinitions>
