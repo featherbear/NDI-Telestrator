@@ -16,6 +16,9 @@
     IsOpen="{Binding IsOpen}"
     Position="Right"
     mc:Ignorable="d">
+    <Controls:Flyout.Resources>
+        <telestrator:ReverseConverterX x:Key="ReverseConverter" />
+    </Controls:Flyout.Resources>
     <StackPanel>
 
         <Border
@@ -102,9 +105,13 @@
                     Click="onBtnCreateLayer"
                     ClipToBounds="True"
                     Style="{StaticResource MaterialDesignToolForegroundButton}">
-                    <materialDesign:PackIcon Kind="Square" />
+                    <materialDesign:PackIcon Kind="PlusBox" />
                 </Button>
             </Border>
+            <ListBox
+                ItemsSource="{Binding whiteboard.InkCanvases2, Converter={StaticResource ReverseConverter}, ElementName=optionsDialogue}"
+                SelectedIndex="{Binding selectedIndex}"
+                SelectionChanged="ListBox_SelectionChanged" />
             <StackPanel Name="ABC" />
 
 

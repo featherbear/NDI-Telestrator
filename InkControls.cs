@@ -8,12 +8,33 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.ComponentModel;
 
 namespace NDI_Telestrator
 {
     public static class InkControls
     {
-        public static WhiteboardCanvas whiteboard { get; set; }
+        private static WhiteboardCanvas _whiteboard;
+        public static WhiteboardCanvas whiteboard
+        {
+            get
+            {
+                return _whiteboard;
+            }
+            set
+            {
+                Console.WriteLine("SET WHITEBOARD") ;
+                _whiteboard = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private static void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(null, new PropertyChangedEventArgs(name));
+        }
+        public static event PropertyChangedEventHandler PropertyChanged;
+
 
         public static void Btn_Save_Click(object sender, RoutedEventArgs e)
         {
@@ -172,7 +193,7 @@ namespace NDI_Telestrator
             {
 
 
-                b = Draw(whiteboard.inkCanvases.Select(c => c.Strokes).ToArray(), whiteboard.Background == Brushes.Transparent ? Brushes.White : whiteboard.Background);
+                b = Draw(whiteboard.InkCanvases.Select(c => c.Strokes).ToArray(), whiteboard.Background == Brushes.Transparent ? Brushes.White : whiteboard.Background);
                 JpegBitmapEncoder j = new JpegBitmapEncoder();
                 j.Frames.Add(b);
 
@@ -184,7 +205,7 @@ namespace NDI_Telestrator
             }
             else
             {
-                b = Draw(whiteboard.inkCanvases.Select(c => c.Strokes).ToArray(), Brushes.Transparent);
+                b = Draw(whiteboard.InkCanvases.Select(c => c.Strokes).ToArray(), Brushes.Transparent);
                 PngBitmapEncoder p = new PngBitmapEncoder();
                 p.Frames.Add(b);
 
@@ -197,9 +218,19 @@ namespace NDI_Telestrator
 
         public static void createNewLayer()
         {
-            InkCanvas canvas = whiteboard.CreateLayer();
-            whiteboard.Children.Add(canvas);
-            whiteboard.activeInkCanvas = canvas;
+            whiteboard.addNewLayer();
+        }
+
+        public static void setActiveLayer(int index)
+        {
+            if (index >= whiteboard.Children.Count)
+            {
+                Console.WriteLine("Got index " + index + " but child count is " + whiteboard.Children.Count);
+                return;
+                throw new Exception("OOB");
+            }
+            whiteboard.activeInkCanvas = (InkCanvas)whiteboard.Children[index];
+            Console.WriteLine("Set active");
         }
     }
 }

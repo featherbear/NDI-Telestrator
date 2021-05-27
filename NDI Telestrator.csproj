@@ -174,5 +174,16 @@
       <Name>NDILibDotNet2</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MahApps.Metro">
+      <Version>1.6.5</Version>
+    </PackageReference>
+    <PackageReference Include="MaterialDesignColors">
+      <Version>1.1.3</Version>
+    </PackageReference>
+    <PackageReference Include="MaterialDesignThemes">
+      <Version>2.4.0.1044</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

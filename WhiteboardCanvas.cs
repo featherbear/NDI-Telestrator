@@ -43,7 +43,7 @@ namespace NDI_Telestrator
             }
         }
 
-        public List<InkCanvas> inkCanvases
+        public List<InkCanvas> InkCanvases
         {
             get
             {
@@ -54,6 +54,21 @@ namespace NDI_Telestrator
 
                 }
                 return result;
+            }
+        }
+
+        private List<int> _inkCanveses2;
+        public List<int> InkCanvases2
+        {
+            get
+            {
+                List<InkCanvas> result = new List<InkCanvas>();
+                foreach (InkCanvas canvas in Children)
+                {
+                    result.Add(canvas);
+
+                }
+                return result.Select(e => e.Strokes.Count).ToList();
             }
         }
 
@@ -90,7 +105,10 @@ namespace NDI_Telestrator
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+
         public event PropertyChangedEventHandler PropertyChanged;
+     
+
 
 
 
@@ -101,7 +119,32 @@ namespace NDI_Telestrator
             InitializeComponent();
         }
 
-        public InkCanvas CreateLayer()
+
+        private void InitializeComponent()
+        {
+            this.Background = System.Windows.Media.Brushes.Transparent;
+            SizeChanged += WhiteboardCanvas_SizeChanged;
+
+            addNewLayer();
+
+            LostMouseCapture += (a, b) =>
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InkCanvases2"));
+
+            }
+            ;
+        }
+
+        public void addNewLayer()
+        {
+            InkCanvas canvas = CreateLayer();
+            this.Children.Add(canvas);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InkCanvases"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InkCanvases2"));
+
+            activeInkCanvas = canvas;
+        }
+        private InkCanvas CreateLayer()
         {
             InkCanvas canvas = new InkCanvas();
             // Clear the redo queue on new stroke input
@@ -121,15 +164,6 @@ namespace NDI_Telestrator
             return canvas;
         }
 
-        private void InitializeComponent()
-        {
-            this.Background = System.Windows.Media.Brushes.Transparent;
-            SizeChanged += WhiteboardCanvas_SizeChanged;
-
-            InkCanvas canvas = CreateLayer();
-            this.Children.Add(canvas);
-            activeInkCanvas = canvas;
-        }
 
         private void WhiteboardCanvas_SizeChanged(object sender, System.Windows.SizeChangedEventArgs e)
         {
