@@ -174,6 +174,10 @@ namespace NDI_Telestrator
             setPenAttributes(brushColor, size);
         }
 
+        public System.Windows.Media.Imaging.BitmapFrame Draw(Brush background = null)
+        {
+            return InkControls.Draw(InkLayers.Select(c => c.Strokes).ToArray(), background);
+        }
 
         public void Undo()
         {

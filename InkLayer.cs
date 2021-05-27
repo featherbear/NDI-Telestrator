@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Ink;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace NDI_Telestrator
 {
@@ -33,6 +36,23 @@ namespace NDI_Telestrator
                 Width = b.NewSize.Width;
                 Height = b.NewSize.Height;
             };
+        }
+
+        // Generate a bitmap of the individual layer
+        public BitmapFrame Draw(Brush background = null)
+        {
+            DrawingVisual drawingVisual = new DrawingVisual();
+            using (DrawingContext drawingContext = drawingVisual.RenderOpen())
+            {
+                if (background != null) drawingContext.DrawRectangle(background, null, new Rect(0, 0, (int)Width, (int)Height));
+                Strokes.Draw(drawingContext);
+                drawingContext.Close();
+
+                RenderTargetBitmap rtb = new RenderTargetBitmap((int)Width, (int)Height, 96d, 96d, PixelFormats.Default);
+                rtb.Render(drawingVisual);
+
+                return BitmapFrame.Create(rtb);
+            }
         }
 
         public void Undo()

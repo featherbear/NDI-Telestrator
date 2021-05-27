@@ -134,29 +134,20 @@ namespace NDI_Telestrator
             whiteboard.Redo();
         }
 
-        // TODO: Move somewhere else
+        // Draw a selective number of layers
         public static BitmapFrame Draw(System.Windows.Ink.StrokeCollection[] layers, Brush background = null)
         {
             DrawingVisual drawingVisual = new DrawingVisual();
             using (DrawingContext drawingContext = drawingVisual.RenderOpen())
             {
-                if (background != null)
-                {
-                    drawingContext.DrawRectangle(background, null, new Rect(0, 0, (int)whiteboard.activeInkCanvas.Width, (int)whiteboard.activeInkCanvas.Height));
-
-                }
-
-                foreach (System.Windows.Ink.StrokeCollection strokes in layers)
-                {
-                    strokes.Draw(drawingContext);
-                };
+                if (background != null) drawingContext.DrawRectangle(background, null, new Rect(0, 0, (int)whiteboard.activeInkCanvas.Width, (int)whiteboard.activeInkCanvas.Height));
+                foreach (System.Windows.Ink.StrokeCollection strokes in layers) strokes.Draw(drawingContext);
                 drawingContext.Close();
 
                 RenderTargetBitmap rtb = new RenderTargetBitmap((int)whiteboard.activeInkCanvas.Width, (int)whiteboard.activeInkCanvas.Height, 96d, 96d, System.Windows.Media.PixelFormats.Default);
                 rtb.Render(drawingVisual);
 
-                BitmapFrame B = BitmapFrame.Create(rtb);
-                return B;
+                return BitmapFrame.Create(rtb);
             }
         }
 
@@ -164,7 +155,7 @@ namespace NDI_Telestrator
         {
             Enums.ScreenshotFormatTypes type = Options.screenshotFormatType;
 
-            String saveFileName = "Screenshot " + DateTime.Now.ToString("yyyyMMdd-HHmmss");
+            string saveFileName = "Screenshot " + DateTime.Now.ToString("yyyyMMdd-HHmmss");
 
             if (!Options.quickSaveEnabled)
             {
@@ -183,36 +174,26 @@ namespace NDI_Telestrator
                 else if (lowerCase.EndsWith(".png")) type = Enums.ScreenshotFormatTypes.PNG;
                 else saveFileName += (saveDialog.FilterIndex == 1 ? ".jpg" : ".png");
             }
-            else
-            {
-                saveFileName += type == Enums.ScreenshotFormatTypes.JPG ? ".jpg" : ".png";
-            }
+            else saveFileName += type == Enums.ScreenshotFormatTypes.JPG ? ".jpg" : ".png";
+
 
             BitmapFrame b;
             if (type == Enums.ScreenshotFormatTypes.JPG)
             {
-
-
-                b = Draw(whiteboard.InkLayers.Select(c => c.Strokes).ToArray(), whiteboard.Background == Brushes.Transparent ? Brushes.White : whiteboard.Background);
+                b = whiteboard.Draw(whiteboard.Background == Brushes.Transparent ? Brushes.White : whiteboard.Background);
                 JpegBitmapEncoder j = new JpegBitmapEncoder();
                 j.Frames.Add(b);
 
-                using (var file = new FileStream(saveFileName, FileMode.Create))
-                {
-                    j.Save(file);
-                }
+                using (var file = new FileStream(saveFileName, FileMode.Create)) j.Save(file);
 
             }
             else
             {
-                b = Draw(whiteboard.InkLayers.Select(c => c.Strokes).ToArray(), Brushes.Transparent);
+                b = whiteboard.Draw(Brushes.Transparent);
                 PngBitmapEncoder p = new PngBitmapEncoder();
                 p.Frames.Add(b);
 
-                using (var file = new FileStream(saveFileName, FileMode.Create))
-                {
-                    p.Save(file);
-                }
+                using (var file = new FileStream(saveFileName, FileMode.Create)) p.Save(file);
             }
         }
 
@@ -225,6 +206,6 @@ namespace NDI_Telestrator
         {
             whiteboard.setActive(index);
         }
-         
+
     }
 }
