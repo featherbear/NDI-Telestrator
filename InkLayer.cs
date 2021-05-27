@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,15 @@ namespace NDI_Telestrator
     public class InkLayer : System.Windows.Controls.InkCanvas
     {
 
+        #region Property notifications
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        #endregion
+
         public event EventHandler LayerUpdated;
 
         public Queue<Stroke> redoQueue;
@@ -23,24 +33,43 @@ namespace NDI_Telestrator
         // function so we'll add it to a Stroke that we add it in
         StylusPointCollection stylusStrokeBuffer = null;
 
+        public BitmapFrame Bitmap
+        {
+            get
+            {
+                return Draw(Brushes.White);
+            }
+        }
+
+        private void _notifyUpdate()
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Bitmap"));
+            LayerUpdated?.Invoke(this, null);
+        }
+
         public InkLayer(Canvas parent) : base()
         {
             Background = System.Windows.Media.Brushes.Transparent;
             UseCustomCursor = true;
-            Cursor = parent.Cursor;
+            redoQueue = new Queue<Stroke>();
+
             Width = parent.Width;
             Height = parent.Height;
-            redoQueue = new Queue<Stroke>();
+
             parent.SizeChanged += (a, b) =>
             {
                 Width = b.NewSize.Width;
                 Height = b.NewSize.Height;
+                _notifyUpdate();
             };
         }
 
         // Generate a bitmap of the individual layer
         public BitmapFrame Draw(Brush background = null)
         {
+            if (double.IsNaN(Width)) return null;
+            //if (!IsLoaded) return null;
+
             DrawingVisual drawingVisual = new DrawingVisual();
             using (DrawingContext drawingContext = drawingVisual.RenderOpen())
             {
@@ -61,7 +90,7 @@ namespace NDI_Telestrator
             {
                 redoQueue.Enqueue(Strokes.Last());
                 Strokes.RemoveAt(Strokes.Count - 1);
-                LayerUpdated?.Invoke(this, null);
+                _notifyUpdate();
             }
         }
 
@@ -70,7 +99,7 @@ namespace NDI_Telestrator
             if (redoQueue.Count > 0)
             {
                 Strokes.Add(redoQueue.Dequeue());
-                LayerUpdated?.Invoke(this, null);
+                _notifyUpdate();
             }
         }
 
@@ -79,7 +108,7 @@ namespace NDI_Telestrator
             // Clear the redo queue on new stroke input
             // TODO: Check if working wtih stroke move / copy / drag
             redoQueue.Clear();
-            LayerUpdated?.Invoke(this, null);
+            _notifyUpdate();
         }
 
         protected override void OnStrokeCollected(InkCanvasStrokeCollectedEventArgs e)
@@ -138,7 +167,7 @@ namespace NDI_Telestrator
 
             // Using OnMouseLeftButtonUp instead now
             // OnStrokeCollected(new InkCanvasStrokeCollectedEventArgs(Strokes[Strokes.Count - 1]) { RoutedEvent = InkCanvas.StrokeCollectedEvent });
-       
+
             base.OnStylusUp(e);
         }
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
@@ -154,7 +183,7 @@ namespace NDI_Telestrator
 
             // Blocks events that would populate the 1-pixel stroke
             e.Handled = true;
-            
+
             // base.OnPreviewStylusMove(e);
         }
     }

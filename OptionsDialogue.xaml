@@ -109,11 +109,35 @@
                     <materialDesign:PackIcon Kind="PlusBox" />
                 </Button>
             </Border>
-            <ListBox
-                DisplayMemberPath="Strokes.Count"
+            <ListView
                 ItemsSource="{Binding whiteboard.InkLayers, Converter={StaticResource ReverseConverter}, ElementName=optionsDialogue}"
                 SelectedIndex="{Binding selectedIndex}"
-                SelectionChanged="ListBox_SelectionChanged" />
+                SelectionChanged="ListBox_SelectionChanged"
+                SelectionMode="Single">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Width="200" Header="gack2">
+
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Image Source="{Binding Bitmap}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+
+
+                        <GridViewColumn Header="gack">
+
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Strokes.Count}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+
+                    </GridView>
+                </ListView.View>
+            </ListView>
             <StackPanel Name="ABC" />
 
 
