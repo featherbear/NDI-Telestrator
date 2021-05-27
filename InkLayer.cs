@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,7 +20,7 @@ namespace NDI_Telestrator
         // function so we'll add it to a Stroke that we add it in
         StylusPointCollection stylusStrokeBuffer = null;
 
-        public InkLayer(Canvas parent)
+        public InkLayer(Canvas parent) : base()
         {
             Background = System.Windows.Media.Brushes.Transparent;
             UseCustomCursor = true;
@@ -51,19 +51,20 @@ namespace NDI_Telestrator
             }
         }
 
-        protected override void OnStrokeCollected(InkCanvasStrokeCollectedEventArgs e)
+        private void _handleStrokeCollection(Stroke stroke)
         {
             // Clear the redo queue on new stroke input
             // TODO: Check if working wtih stroke move / copy / drag
             redoQueue.Clear();
             LayerUpdated?.Invoke(this, null);
-            base.OnStrokeCollected(e);
         }
-        //protected override void OnLostMouseCapture(MouseEventArgs e)
-        //{
-        //    //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InkCanvases2"));
-        //    base.OnLostMouseCapture(e);
-        //}
+
+        protected override void OnStrokeCollected(InkCanvasStrokeCollectedEventArgs e)
+        {
+            // Do nothing
+            // Don't let anyone use this uwu
+            // base.OnStrokeCollected(e);
+        }
 
         protected override void OnPreviewStylusDown(StylusDownEventArgs e)
         {
@@ -73,14 +74,20 @@ namespace NDI_Telestrator
             // But not handling adds a 1-pixel (or so) stroke
             // EDIT: If PreviewStylusUp is handled, the 1-pixel stroke is not added
             // b.Handled = true;
+
             base.OnPreviewStylusDown(e);
         }
 
         protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
         {
             // Cancel mouse down event if the stylus was used (Prevents single pixel stroke)
-            if (stylusStrokeBuffer != null) e.Handled = true;
-            else base.OnPreviewMouseDown(e);
+            if (stylusStrokeBuffer != null)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            base.OnPreviewMouseDown(e);
         }
 
         //protected override void OnPreviewStylusUp(StylusEventArgs e)
@@ -100,14 +107,21 @@ namespace NDI_Telestrator
 
         // The 1-pixel stroke gets added somewhere between PreviewStylusUp and StylusUp
 
-        protected override void OnPreviewStylusUp(StylusEventArgs e)
+        protected override void OnStylusUp(StylusEventArgs e)
         {
             // Remove the last stroke (1)
             stylusStrokeBuffer = null;
             Strokes.RemoveAt(Strokes.Count - 1);
 
-            OnStrokeCollected(new InkCanvasStrokeCollectedEventArgs(Strokes[Strokes.Count - 1]) { RoutedEvent = InkCanvas.StrokeCollectedEvent });
-            base.OnPreviewStylusUp(e);
+            // Using OnMouseLeftButtonUp instead now
+            // OnStrokeCollected(new InkCanvasStrokeCollectedEventArgs(Strokes[Strokes.Count - 1]) { RoutedEvent = InkCanvas.StrokeCollectedEvent });
+       
+            base.OnStylusUp(e);
+        }
+        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
+        {
+            _handleStrokeCollection(Strokes[Strokes.Count - 1]);
+            base.OnMouseLeftButtonUp(e);
         }
 
         protected override void OnPreviewStylusMove(StylusEventArgs e)
@@ -117,7 +131,8 @@ namespace NDI_Telestrator
 
             // Blocks events that would populate the 1-pixel stroke
             e.Handled = true;
-            //base.OnPreviewStylusMove(e);
+            
+            // base.OnPreviewStylusMove(e);
         }
     }
 }
