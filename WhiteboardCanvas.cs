@@ -148,67 +148,36 @@ namespace NDI_Telestrator
             //{
             //    Console.WriteLine("Lost stylus");
             //};
-     
+            activeInkCanvas.StrokeCollected += (a, b) =>
+            {
+                Console.WriteLine("Stroke get");
+            };
 
-            //activeInkCanvas.
-            //            PreviewMouseDown += (a, b) => Console.WriteLine("PreviewMouseDown");
-            //activeInkCanvas.MouseDown += (a, b) => { Console.WriteLine("MouseDown");  b. };
-
-
-            //activeInkCanvas.PreviewMouseUp += (a, b) => Console.WriteLine("PreviewMouseUp");
-            //activeInkCanvas.MouseUp += (a, b) => Console.WriteLine("MouseUp\n-------------------");
-
-            //acti
-
-            //activeInkCanvas.PreviewStylusButtonDown += (a, b) =>
-            //{
-            //    b.Handled = true;
-            //    Console.WriteLine(" PreviewStylusButtonDown");
-            //};
-            //activeInkCanvas.StylusButtonDown += (a, b) =>
-            //{
-            //    b.Handled = true;
-            //    Console.WriteLine("  StylusButtonDown");
-            //};
-
-            //activeInkCanvas.PreviewStylusDown += (a, b) =>
-            //{
-            //    b.Handled = true;
-            //};
-            //activeInkCanvas.StylusDown += (a, b) =>
-            //{
-            //    b.Handled = true;
-            //};
-
-
-            //activeInkCanvas.PreviewMouseMove += (a, b) =>
-            //{
-            //    b.Handled = true;
-            //};
-            //activeInkCanvas.MouseMove += (a, b) =>
-            //{
-            //    b.Handled = true;
-            //};
-
+            activeInkCanvas.PreviewStylusDown += (a, b) =>
+            {
+                collection = b.StylusDevice.GetStylusPoints(activeInkCanvas);
+                Console.WriteLine("Stylus is down");
+                activeInkCanvas.Strokes.Add(new Stroke(collection));
+            };
+            activeInkCanvas.StylusUp+= (a, b) =>
+            {
+                Console.WriteLine("Stylus is up");
+                collection = null;
+            };
 
             activeInkCanvas.PreviewStylusMove += (a, b) =>
             {
-                //MouseDevice mouseDev = ;
-                activeInkCanvas.RaiseEvent(new MouseEventArgs(InputManager.Current.PrimaryMouseDevice, b.Timestamp)
-                {
-                    RoutedEvent = Mouse.PreviewMouseMoveEvent,
+                collection.Add(b.StylusDevice.GetStylusPoints(activeInkCanvas));
+                b.Handled = true;
+                Console.WriteLine("Stylus move " + activeInkCanvas.Strokes.Count);
+            };
 
-                });
-                //b.StylusDevice
+            activeInkCanvas.PreviewStylusMove += (a, b) =>
+            {
                 b.Handled = true;
             };
             activeInkCanvas.StylusMove += (a, b) =>
             {
-                activeInkCanvas.RaiseEvent(new MouseEventArgs(InputManager.Current.PrimaryMouseDevice, b.Timestamp)
-                {
-                    RoutedEvent = Mouse.MouseMoveEvent,
-
-                });
                 b.Handled = true;
             };
 
