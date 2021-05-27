@@ -65,6 +65,9 @@ namespace NDI_Telestrator
             InkControls.whiteboard = theWhiteboard;
             optionsDialogue.whiteboard = theWhiteboard;
             optionsDialogue.background = theBackground;
+            //Background = Brushes.Transparent;
+            Opacity = 0.2;
+            AllowsTransparency = true;
 
             // Send background updates every 250ms
             System.Windows.Threading.DispatcherTimer backgroundUpdateTimer = new System.Windows.Threading.DispatcherTimer();
