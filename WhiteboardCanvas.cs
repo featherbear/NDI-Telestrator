@@ -116,8 +116,6 @@ namespace NDI_Telestrator
         {
             this.Background = System.Windows.Media.Brushes.Transparent;
 
-            SizeChanged += WhiteboardCanvas_SizeChanged;
-
             addNewLayer();
         }
 
@@ -135,15 +133,6 @@ namespace NDI_Telestrator
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InkCanvases2"));
 
             activeInkCanvas = canvas;
-        }
-
-        private void WhiteboardCanvas_SizeChanged(object sender, System.Windows.SizeChangedEventArgs e)
-        {
-            foreach (InkCanvas canvas in this.Children)
-            {
-                canvas.Width = this.Width;
-                canvas.Height = this.Height;
-            }
         }
 
         private void setPenAttributes(Color color, double size)

@@ -28,6 +28,11 @@ namespace NDI_Telestrator
             Width = parent.Width;
             Height = parent.Height;
             redoQueue = new Queue<Stroke>();
+            parent.SizeChanged += (a, b) =>
+            {
+                Width = b.NewSize.Width;
+                Height = b.NewSize.Height;
+            };
         }
 
         public void Undo()
