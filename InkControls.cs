@@ -50,7 +50,8 @@ namespace NDI_Telestrator
             }
 
         }
-        public static void onBtnLoadClick(object sender, RoutedEventArgs e)
+
+        private static List<System.Windows.Ink.StrokeCollection> requestOpenFile()
         {
             List<System.Windows.Ink.StrokeCollection> layers = new List<System.Windows.Ink.StrokeCollection>();
 
@@ -58,19 +59,40 @@ namespace NDI_Telestrator
             openDialog.Filter = "Ink Stroke File (*.isf)|*.isf|Telestrator File (*.tls)|*.tls|All supported files|*.isf;*.tls";
             openDialog.FilterIndex = 2;
 
-            if (openDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                FileStream fs = new FileStream(openDialog.FileName, FileMode.Open);
-                while (fs.Position != fs.Length) layers.Add(new System.Windows.Ink.StrokeCollection(fs));
+            if (openDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK) return null;
 
-                fs.Close();
-            }
+            FileStream fs = new FileStream(openDialog.FileName, FileMode.Open);
+            while (fs.Position != fs.Length) layers.Add(new System.Windows.Ink.StrokeCollection(fs));
 
-            if (layers.Count > 0)
+            fs.Close();
+
+            return layers;
+        }
+
+        public static void requestAddDrawing(bool asMultipleLayers)
+        {
+            List<System.Windows.Ink.StrokeCollection> layers = requestOpenFile();
+            if (layers == null || layers.Count == 0) return;
+
+            if (asMultipleLayers)
             {
-                whiteboard.ResetState(false);
                 foreach (System.Windows.Ink.StrokeCollection layer in layers) whiteboard.addNewLayer(layer);
             }
+            else
+            {
+                System.Windows.Ink.StrokeCollection sum = new System.Windows.Ink.StrokeCollection();
+                foreach (System.Windows.Ink.StrokeCollection layer in layers) sum.Add(layer);
+                whiteboard.addNewLayer(sum);
+            }
+        }
+
+        public static void onBtnLoadClick(object sender, RoutedEventArgs e)
+        {
+            List<System.Windows.Ink.StrokeCollection> layers = requestOpenFile();
+            if (layers == null || layers.Count == 0) return;
+
+            whiteboard.ResetState(false);
+            foreach (System.Windows.Ink.StrokeCollection layer in layers) whiteboard.addNewLayer(layer);
         }
 
         public static void onBtnWhiteClick(object sender, RoutedEventArgs e)
