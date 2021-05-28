@@ -120,15 +120,19 @@ namespace NDI_Telestrator
             if (backHistory.Count > 0)
             {
                 HistoryData evt = backHistory.Pop();
-
-                forwardHistory.Enqueue(evt);
+                
                 switch (evt.type)
                 {
                     case HistoryDataType.AddStroke:
                         Strokes.Remove((Stroke)evt.dataA); //Strokes.RemoveAt(Strokes.Count - 1);
                         break;
+                    case HistoryDataType.ClearBoard:
+                        evt.dataB = Strokes;
+                        Strokes = (StrokeCollection) evt.dataA;
+                        break;
                 }
 
+                forwardHistory.Enqueue(evt);
                 _notifyUpdate();
             }
         }
@@ -139,28 +143,35 @@ namespace NDI_Telestrator
             {
                 HistoryData evt = forwardHistory.Dequeue();
 
-                backHistory.Push(evt);
-
                 switch (evt.type)
                 {
                     case HistoryDataType.AddStroke:
                         Strokes.Add((Stroke)evt.dataA);
                         break;
+
+                    case HistoryDataType.ClearBoard:
+                        evt.dataA = Strokes;
+                        Strokes = (StrokeCollection) evt.dataB;
+                        break;
                 }
 
+                backHistory.Push(evt);
                 _notifyUpdate();
             }
         }
 
+
+
+        public void Clear()
+        {
+            pushBackHistory(new HistoryData { type = HistoryDataType.ClearBoard, dataA = Strokes });
+            Strokes = new StrokeCollection();
+            _notifyUpdate();
+        }
+
         private void _handleStrokeCollection(Stroke stroke)
         {
-            // TODO: Check if working wtih stroke move / copy / drag
-
-
-            backHistory.Push(new HistoryData { type = HistoryDataType.AddStroke, dataA = stroke });
-            forwardHistory.Clear(); // Clear the redo queue on new stroke input
-
-            _notifyUpdate();
+            pushBackHistory(new HistoryData { type = HistoryDataType.AddStroke, dataA = stroke });
         }
 
         protected override void OnStrokeCollected(InkCanvasStrokeCollectedEventArgs e)

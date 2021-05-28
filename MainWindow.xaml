@@ -105,6 +105,7 @@
                         materialDesign:RippleAssist.IsCentered="True"
                         Click="Btn_Delete_Click"
                         ClipToBounds="True"
+                        IsEnabled="{Binding hasStrokes, ElementName=theWhiteboard}"
                         Style="{StaticResource MaterialDesignToolForegroundButton}">
                         <materialDesign:PackIcon Kind="Delete" />
                     </Button>

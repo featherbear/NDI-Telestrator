@@ -15,7 +15,7 @@ namespace NDI_Telestrator
 
     public class WhiteboardCanvas : System.Windows.Controls.Canvas, INotifyPropertyChanged
     {
-
+     
         #region Property notifications
         protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
         {
@@ -42,7 +42,7 @@ namespace NDI_Telestrator
             {
                 _activeInkCanvas = value;
                 OnPropertyChanged();
-                updateUndoRedoStates();
+                _notifyUpdate(_activeInkCanvas);
             }
         }
         #endregion
@@ -61,33 +61,32 @@ namespace NDI_Telestrator
         }
 
         #region hasRedoContent
-        private bool _hasRedoContent;
         public bool hasRedoContent
         {
             get
             {
-                return _hasRedoContent;
-            }
-            private set
-            {
-                _hasRedoContent = value;
-                OnPropertyChanged();
+                return activeInkCanvas.forwardHistory.Count > 0;
             }
         }
         #endregion
 
         #region hasUndoContent
-        private bool _hasUndoContent;
         public bool hasUndoContent
         {
             get
             {
-                return _hasUndoContent;
+                return activeInkCanvas.backHistory.Count > 0;
             }
-            private set
+        }
+        #endregion
+
+
+        #region hasStrokes
+        public bool hasStrokes
+        {
+            get
             {
-                _hasUndoContent = value;
-                OnPropertyChanged();
+                return activeInkCanvas.Strokes.Count > 0;
             }
         }
         #endregion
@@ -106,6 +105,10 @@ namespace NDI_Telestrator
 
         private void _notifyUpdate(InkLayer layer = null)
         {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("hasUndoContent"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("hasRedoContent"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("hasStrokes"));
+
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InkLayers"));
             CanvasUpdated?.Invoke(this, layer);
         }
@@ -116,7 +119,6 @@ namespace NDI_Telestrator
 
             layer.LayerUpdated += (_, __) =>
             {
-                updateUndoRedoStates();
                 _notifyUpdate(layer);
             };
 
@@ -189,15 +191,9 @@ namespace NDI_Telestrator
             activeInkCanvas.Redo();
         }
 
-        public void updateUndoRedoStates()
-        {
-            hasUndoContent = activeInkCanvas.backHistory.Count > 0;
-            hasRedoContent = activeInkCanvas.forwardHistory.Count > 0;
-        }
-
         public void Clear()
         {
-            activeInkCanvas.Strokes.Clear();
+            activeInkCanvas.Clear();
         }
 
         public void setActive(InkLayer layer)
