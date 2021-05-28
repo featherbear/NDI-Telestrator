@@ -114,13 +114,13 @@ namespace NDI_Telestrator
 
         private void onBtnLoad(object sender, RoutedEventArgs e)
         {
-            InkControls.Btn_Load_Click(sender, e);
+            InkControls.onBtnLoadClick(sender, e);
         }
 
         private void onBtnSave(object sender, RoutedEventArgs e)
         {
 
-            InkControls.Btn_Save_Click(sender, e);
+            InkControls.onBtnSaveClick(sender, e);
         }
 
         private void ToggleSwitch_IsCheckedChanged(object sender, EventArgs e)

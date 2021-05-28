@@ -103,6 +103,13 @@ namespace NDI_Telestrator
             addNewLayer();
         }
 
+        public void ResetState(bool addLayer = true)
+        {
+            this.Children.Clear();
+            if (addLayer) addNewLayer();
+        }
+
+
         private void _notifyUpdate(InkLayer layer = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("hasUndoContent"));
@@ -113,9 +120,10 @@ namespace NDI_Telestrator
             CanvasUpdated?.Invoke(this, layer);
         }
 
-        public void addNewLayer()
+        public void addNewLayer(StrokeCollection strokes = null)
         {
             InkLayer layer = new InkLayer(this);
+            if (strokes != null) layer.Strokes = strokes;
 
             layer.LayerUpdated += (_, __) =>
             {
