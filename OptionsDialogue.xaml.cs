@@ -148,10 +148,12 @@ namespace NDI_Telestrator
         private int _selectedIndex = 0;
         public int selectedIndex
         {
-            get { return _selectedIndex; }
+            get
+            {
+                return _selectedIndex;
+            }
             set
             {
-                Console.WriteLine("UPDATE");
                 _selectedIndex = value;
                 OnPropertyChanged();
             }

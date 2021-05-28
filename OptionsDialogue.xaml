@@ -11,7 +11,7 @@
     xmlns:telestrator="clr-namespace:NDI_Telestrator"
     x:Name="optionsDialogue"
     Width="300"
-    d:DesignHeight="450"
+    d:DesignHeight="1080"
     d:DesignWidth="800"
     Header="About"
     IsOpen="{Binding IsOpen}"
@@ -20,8 +20,11 @@
     <Controls:Flyout.Resources>
         <XAMLConverters:ReverseConverter x:Key="ReverseConverter" />
     </Controls:Flyout.Resources>
-    <StackPanel>
-        <StackPanel Margin="10">
+    <DockPanel>
+
+
+        <!--#region Buttons-->
+        <StackPanel Margin="10" DockPanel.Dock="Top">
             <Border BorderBrush="Transparent" BorderThickness="0,0,0,3">
                 <Button
                     Name="Btn_Load"
@@ -101,7 +104,10 @@
                 </Button>
             </Border>
         </StackPanel>
-        <StackPanel Margin="10">
+        <!--#endregion-->
+
+        <!--#region NDI Source-->
+        <StackPanel Margin="10" DockPanel.Dock="Top">
             <TextBlock Style="{StaticResource MaterialDesignTitleTextBlock}" Text="NDI Source" />
             <Controls:SplitButton
                 x:Name="NDISourcesDropdown"
@@ -116,8 +122,10 @@
                 </Controls:SplitButton.Icon>
             </Controls:SplitButton>
         </StackPanel>
+        <!--#endregion-->
 
-        <StackPanel Margin="10">
+        <!--#region Screenshot Settings-->
+        <StackPanel Margin="10" DockPanel.Dock="Top">
             <TextBlock Style="{StaticResource MaterialDesignTitleTextBlock}" Text="Screenshots" />
 
             <TextBlock Text="Screenshot Format" />
@@ -135,40 +143,53 @@
                 <Controls:ToggleSwitch IsChecked="{Binding Source={x:Static telestrator:Options.quickSaveEnabled}, Path=.}" IsCheckedChanged="ToggleSwitch_IsCheckedChanged" />
             </StackPanel>
         </StackPanel>
+        <!--#endregion-->
 
-        <StackPanel Margin="10">
-            <TextBlock Style="{StaticResource MaterialDesignTitleTextBlock}" Text="Layers" />
-            <Border BorderBrush="Transparent" BorderThickness="0,0,0,3">
+        <!--#region Layers-->
+        <DockPanel Margin="10">
+            <TextBlock
+                DockPanel.Dock="Top"
+                Style="{StaticResource MaterialDesignTitleTextBlock}"
+                Text="Layers" />
+            <Border
+                BorderBrush="Transparent"
+                BorderThickness="0,0,0,3"
+                DockPanel.Dock="Top">
                 <Button
-                    Width="30"
                     Height="32"
                     VerticalAlignment="Bottom"
                     materialDesign:RippleAssist.IsCentered="True"
                     Click="onBtnCreateLayer"
                     ClipToBounds="True"
                     Style="{StaticResource MaterialDesignToolForegroundButton}">
-                    <materialDesign:PackIcon Kind="PlusBox" />
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="PlusBox" />
+                        <TextBlock Margin="5,0,0,0" Text="Add new layer" />
+                    </StackPanel>
                 </Button>
             </Border>
             <ListView
                 ItemsSource="{Binding whiteboard.InkLayers, Converter={StaticResource ReverseConverter}, ElementName=optionsDialogue}"
-                SelectedIndex="{Binding selectedIndex}"
+                SelectedIndex="{Binding selectedIndex, ElementName=optionsDialogue}"
                 SelectionChanged="ListBox_SelectionChanged"
                 SelectionMode="Single">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Width="200" Header="gack2">
+                        <GridView.ColumnHeaderContainerStyle>
+                            <Style TargetType="{x:Type GridViewColumnHeader}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </Style>
+                        </GridView.ColumnHeaderContainerStyle>
 
+                        <GridViewColumn Width="200">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Image Source="{Binding Bitmap}" />
+                                    <Image Margin="0,5,0,5" Source="{Binding Bitmap}" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
 
-
-                        <GridViewColumn Header="gack">
-
+                        <GridViewColumn Width="20">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Strokes.Count}" />
@@ -179,9 +200,7 @@
                     </GridView>
                 </ListView.View>
             </ListView>
-            <StackPanel Name="ABC" />
-
-
-        </StackPanel>
-    </StackPanel>
+        </DockPanel>
+        <!--#endregion-->
+    </DockPanel>
 </Controls:Flyout>
