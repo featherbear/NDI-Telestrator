@@ -38,7 +38,7 @@ namespace NDI_Telestrator
             public object dataA;
             public object dataB;
         }
-  
+
 
         public Stack<HistoryData> backHistory = new Stack<HistoryData>();
         public Queue<HistoryData> forwardHistory = new Queue<HistoryData>();
@@ -120,7 +120,7 @@ namespace NDI_Telestrator
             if (backHistory.Count > 0)
             {
                 HistoryData evt = backHistory.Pop();
-                
+
                 switch (evt.type)
                 {
                     case HistoryDataType.AddStroke:
@@ -128,7 +128,7 @@ namespace NDI_Telestrator
                         break;
                     case HistoryDataType.ClearBoard:
                         evt.dataB = Strokes;
-                        Strokes = (StrokeCollection) evt.dataA;
+                        Strokes = (StrokeCollection)evt.dataA;
                         break;
                 }
 
@@ -151,7 +151,7 @@ namespace NDI_Telestrator
 
                     case HistoryDataType.ClearBoard:
                         evt.dataA = Strokes;
-                        Strokes = (StrokeCollection) evt.dataB;
+                        Strokes = (StrokeCollection)evt.dataB;
                         break;
                 }
 
@@ -249,7 +249,7 @@ namespace NDI_Telestrator
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
         {
             if (wasStrokeCaptured) _handleStrokeCollection(Strokes[Strokes.Count - 1]);
-            
+
             base.OnMouseLeftButtonUp(e);
         }
 
@@ -259,7 +259,7 @@ namespace NDI_Telestrator
             {
                 base.OnPreviewStylusMove(e);
                 return;
-            } 
+            }
 
             // Add points to the buffer
             stylusStrokeBuffer.Add(e.StylusDevice.GetStylusPoints(this));
