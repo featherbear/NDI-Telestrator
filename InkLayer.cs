@@ -226,13 +226,16 @@ namespace NDI_Telestrator
 
         protected override void OnStylusUp(StylusEventArgs e)
         {
-            // Remove the last stroke (1)
-            stylusStrokeBuffer = null;
-            Strokes.RemoveAt(Strokes.Count - 1);
-            wasStrokeCaptured = true;
+            if (stylusStrokeBuffer != null)
+            {
+                // Remove the last stroke (1)
+                stylusStrokeBuffer = null;
+                Strokes.RemoveAt(Strokes.Count - 1);
+                wasStrokeCaptured = true;
 
-            // Using OnMouseLeftButtonUp instead now
-            // OnStrokeCollected(new InkCanvasStrokeCollectedEventArgs(Strokes[Strokes.Count - 1]) { RoutedEvent = InkCanvas.StrokeCollectedEvent });
+                // Using OnMouseLeftButtonUp instead now
+                // OnStrokeCollected(new InkCanvasStrokeCollectedEventArgs(Strokes[Strokes.Count - 1]) { RoutedEvent = InkCanvas.StrokeCollectedEvent });
+            }
 
             base.OnStylusUp(e);
         }
@@ -252,13 +255,17 @@ namespace NDI_Telestrator
 
         protected override void OnPreviewStylusMove(StylusEventArgs e)
         {
+            if (stylusStrokeBuffer == null)
+            {
+                base.OnPreviewStylusMove(e);
+                return;
+            } 
+
             // Add points to the buffer
             stylusStrokeBuffer.Add(e.StylusDevice.GetStylusPoints(this));
 
             // Blocks events that would populate the 1-pixel stroke
             e.Handled = true;
-
-            // base.OnPreviewStylusMove(e);
         }
     }
 }
