@@ -22,5 +22,18 @@ namespace NDI_Telestrator
                 throw new NotImplementedException();
             }
         }
+
+        public class ColorToSolidColorBrushNoTransparent : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+            {
+                System.Windows.Media.Color colour = (System.Windows.Media.Color)value;
+                return new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(colour.R, colour.G, colour.B));
+            }
+            public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }

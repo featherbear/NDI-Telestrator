@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Windows.Controls;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -95,37 +91,15 @@ namespace NDI_Telestrator
             foreach (System.Windows.Ink.StrokeCollection layer in layers) whiteboard.addNewLayer(layer);
         }
 
-        public static void onBtnWhiteClick(object sender, RoutedEventArgs e)
+      
+        public static void setPenColour(Color colour)
         {
-            whiteboard.Background = Brushes.White;
-        }
-        public static void onBtnChromaClick(object sender, RoutedEventArgs e)
-        {
-            Button btn = (Button)sender;
-            whiteboard.Background = btn.Foreground;
-        }
-        public static void onBtnTransparentClick(object sender, RoutedEventArgs e)
-        {
-            whiteboard.Background = Brushes.Transparent;
+            whiteboard.SetPenColour(colour);
         }
 
-        public static void onBtnPenClick(object sender, RoutedEventArgs e)
+        public static void setBackgroundColour(Brush colour)
         {
-            /*
-            foreach (UIElement control in DrawSettings.Children)
-            {
-                if (control is Border)
-                {
-                    Border border = control as Border;
-                    border.BorderBrush = Brushes.Transparent;
-                }
-            }
-            */
-
-            Button btn = (Button)sender;
-            //btn.BorderBrush = Brushes.Red;
-
-            whiteboard.SetPenColor(btn.Foreground);
+            whiteboard.Background = colour;
         }
 
         public static void clearWhiteboard()

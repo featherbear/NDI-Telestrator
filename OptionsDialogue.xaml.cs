@@ -1,18 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace NDI_Telestrator
 {
@@ -80,7 +70,7 @@ namespace NDI_Telestrator
         {
             get
             {
-                return new SimpleCommand(o => NDISourcesDropdown.IsExpanded = true);
+                return new SimpleCommand(o => NDISourcesDropdown.IsDropDownOpen = true);
             }
         }
 
@@ -106,7 +96,7 @@ namespace NDI_Telestrator
         {
             get
             {
-                return new SimpleCommand(o => ScreenshotFormatDropdown.IsExpanded = true);
+                return new SimpleCommand(o => ScreenshotFormatDropdown.IsDropDownOpen = true);
             }
         }
 
@@ -123,7 +113,7 @@ namespace NDI_Telestrator
             InkControls.onBtnSaveClick(sender, e);
         }
 
-        private void ToggleSwitch_IsCheckedChanged(object sender, EventArgs e)
+        private void onTglQuickSave(object sender, EventArgs e)
         {
             Options.quickSaveEnabled = !Options.quickSaveEnabled;
         }
