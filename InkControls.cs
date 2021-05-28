@@ -23,7 +23,6 @@ namespace NDI_Telestrator
             }
             set
             {
-                Console.WriteLine("SET WHITEBOARD") ;
                 _whiteboard = value;
                 OnPropertyChanged();
             }
