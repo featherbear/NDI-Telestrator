@@ -23,7 +23,7 @@ namespace NDI_Telestrator
             optionsDialogue.background = theBackground;
 
 
-        
+
 
             // Send background updates every 250ms
             System.Windows.Threading.DispatcherTimer backgroundUpdateTimer = new System.Windows.Threading.DispatcherTimer();
@@ -84,7 +84,7 @@ namespace NDI_Telestrator
             }
         }
 
-        #region Button Controls
+        #region Toolbar Events
         private void Btn_Screenshot_Click(object sender, RoutedEventArgs e)
         {
             InkControls.Btn_Screenshot_Click(sender, e);
@@ -105,30 +105,6 @@ namespace NDI_Telestrator
         {
             InkControls.redo();
         }
-
-        private void Btn_Size1_Click(object sender, RoutedEventArgs e)
-        {
-            InkControls.setPenThickness(1.0);
-        }
-        private void Btn_Size2_Click(object sender, RoutedEventArgs e)
-        {
-            InkControls.setPenThickness(2.0);
-        }
-        private void Btn_Size3_Click(object sender, RoutedEventArgs e)
-        {
-            InkControls.setPenThickness(3.0);
-        }
-        private void Btn_Size4_Click(object sender, RoutedEventArgs e)
-        {
-            InkControls.setPenThickness(4.0);
-        }
-        private void Btn_Size5_Click(object sender, RoutedEventArgs e)
-        {
-            InkControls.setPenThickness(5.0);
-        }
-
-        #endregion
-
         private void Btn_Options_Click(object sender, RoutedEventArgs e)
         {
             optionsDialogue.IsOpen = !optionsDialogue.IsOpen;
@@ -143,5 +119,13 @@ namespace NDI_Telestrator
         {
             if (e.NewValue != null) InkControls.setBackgroundColour(new SolidColorBrush((Color)e.NewValue));
         }
+
+        public ICommand handleSelectThickness
+        {
+            get => new SimpleCommand(o => InkControls.setPenThickness(double.Parse((string)o)));
+        }
+
+        #endregion
+
     }
 }
