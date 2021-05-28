@@ -27,7 +27,7 @@ namespace NDI_Telestrator
 
         public event EventHandler<InkLayer> CanvasUpdated;
 
-        private double brushThickness = 1.0;
+        private double brushThickness = 2.0;
         private Color brushColour = Colors.Black;
 
         #region activeInkCanvas
