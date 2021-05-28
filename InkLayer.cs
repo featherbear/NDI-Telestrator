@@ -38,9 +38,26 @@ namespace NDI_Telestrator
             public object dataA;
             public object dataB;
         }
+  
 
         public Stack<HistoryData> backHistory = new Stack<HistoryData>();
         public Queue<HistoryData> forwardHistory = new Queue<HistoryData>();
+
+        /// <summary>
+        /// Use this function when adding a new item to the back history.
+        /// EXCEPT for Undo / Redo operations
+        /// </summary>
+        /// <param name="evt">History Data</param>
+        private void pushBackHistory(HistoryData evt)
+        {
+            // TODO: Check if working wtih stroke move / copy / drag
+
+            backHistory.Push(evt);
+            forwardHistory.Clear();
+            _notifyUpdate();
+        }
+
+
 
         public event EventHandler LayerUpdated;
 
