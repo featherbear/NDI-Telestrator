@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:NDI_Telestrator"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
@@ -16,6 +17,41 @@
 
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Red.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <DataTemplate x:Key="My.Datatemplates.CustomColorPickerContent">
+                <Grid x:Name="RootGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <mah:ClipBorder
+                        Grid.Column="0"
+                        Width="20"
+                        Height="20"
+                        Background="{DynamicResource MahApps.Brushes.Tile.Small}"
+                        BorderBrush="{DynamicResource MahApps.Brushes.Control.Border}"
+                        BorderThickness="2"
+                        CornerRadius="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualHeight, Converter={mah:SizeToCornerRadiusConverter}}">
+                        <Grid Background="{Binding Converter={x:Static mah:ColorToSolidColorBrushConverter.DefaultInstance}}" />
+                    </mah:ClipBorder>
+                </Grid>
+                <DataTemplate.Triggers>
+                    <DataTrigger Binding="{Binding}" Value="{x:Null}">
+                        <Setter TargetName="RootGrid" Property="Visibility" Value="Collapsed" />
+                    </DataTrigger>
+                </DataTemplate.Triggers>
+            </DataTemplate>
+
         </ResourceDictionary>
+
+
+
+
+
+
+
+
+
+
     </Application.Resources>
 </Application>
