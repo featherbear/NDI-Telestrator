@@ -233,9 +233,18 @@ namespace NDI_Telestrator
 
             base.OnStylusUp(e);
         }
+
+        private bool wasMouseCaptured = false;
+        protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
+        {
+            wasMouseCaptured = IsMouseCaptured;
+            base.OnPreviewMouseUp(e);
+        }
+
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
         {
-            _handleStrokeCollection(Strokes[Strokes.Count - 1]);
+            if (wasMouseCaptured) _handleStrokeCollection(Strokes[Strokes.Count - 1]);
+            
             base.OnMouseLeftButtonUp(e);
         }
 

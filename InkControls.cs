@@ -35,31 +35,42 @@ namespace NDI_Telestrator
         public static event PropertyChangedEventHandler PropertyChanged;
 
 
-        public static void Btn_Save_Click(object sender, RoutedEventArgs e)
+        public static void onBtnSaveClick(object sender, RoutedEventArgs e)
         {
-            //System.Windows.Forms.SaveFileDialog saveDialog = new System.Windows.Forms.SaveFileDialog();
-            //saveDialog.Filter = "isf files (*.isf)|*.isf";
+            System.Windows.Forms.SaveFileDialog saveDialog = new System.Windows.Forms.SaveFileDialog();
+            saveDialog.Filter = "Telestrator File (*.tls)|*.tls";
 
-            //if (saveDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            //{
-            //    FileStream fs = new FileStream(saveDialog.FileName, FileMode.Create);
-            //    whiteboard.inkCanvas.Strokes.Save(fs);
-            //    fs.Close();
-            //}
+            if (saveDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                FileStream fs = new FileStream(saveDialog.FileName, FileMode.Create);
+
+                foreach (InkLayer layer in whiteboard.Children) layer.Strokes.Save(fs);
+
+                fs.Close();
+            }
 
         }
-        public static void Btn_Load_Click(object sender, RoutedEventArgs e)
+        public static void onBtnLoadClick(object sender, RoutedEventArgs e)
         {
-            //System.Windows.Forms.OpenFileDialog openDialog = new System.Windows.Forms.OpenFileDialog();
-            //openDialog.Filter = "isf files (*.isf)|*.isf";
+            List<System.Windows.Ink.StrokeCollection> layers = new List<System.Windows.Ink.StrokeCollection>();
 
-            //if (openDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            //{
-            //    FileStream fs = new FileStream(openDialog.FileName, FileMode.Open);
-            //    whiteboard.inkCanvas.Strokes = new System.Windows.Ink.StrokeCollection(fs);
-            //    fs.Close();
-            //    whiteboard.updateUndoRedoStates();
-            //}
+            System.Windows.Forms.OpenFileDialog openDialog = new System.Windows.Forms.OpenFileDialog();
+            openDialog.Filter = "Ink Stroke File (*.isf)|*.isf|Telestrator File (*.tls)|*.tls|All supported files|*.isf;*.tls";
+            openDialog.FilterIndex = 2;
+
+            if (openDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                FileStream fs = new FileStream(openDialog.FileName, FileMode.Open);
+                while (fs.Position != fs.Length) layers.Add(new System.Windows.Ink.StrokeCollection(fs));
+
+                fs.Close();
+            }
+
+            if (layers.Count > 0)
+            {
+                whiteboard.ResetState(false);
+                foreach (System.Windows.Ink.StrokeCollection layer in layers) whiteboard.addNewLayer(layer);
+            }
         }
 
         public static void onBtnWhiteClick(object sender, RoutedEventArgs e)
