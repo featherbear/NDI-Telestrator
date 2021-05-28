@@ -21,45 +21,86 @@
         <XAMLConverters:ReverseConverter x:Key="ReverseConverter" />
     </Controls:Flyout.Resources>
     <StackPanel>
+        <StackPanel Margin="10">
+            <Border BorderBrush="Transparent" BorderThickness="0,0,0,3">
+                <Button
+                    Name="Btn_Load"
+                    Height="32"
+                    HorizontalContentAlignment="Left"
+                    materialDesign:RippleAssist.IsCentered="True"
+                    Click="onBtnLoad"
+                    ClipToBounds="True"
+                    Style="{StaticResource BaseMetroWindowButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="FolderOpen" />
+                        <TextBlock Margin="5,0,0,0" Text="Load Drawing" />
+                    </StackPanel>
+                </Button>
+            </Border>
+            <Border BorderBrush="Transparent" BorderThickness="0,0,0,3">
+                <Button
+                    Name="Btn_Save"
+                    Height="32"
+                    VerticalAlignment="Bottom"
+                    HorizontalContentAlignment="Left"
+                    materialDesign:RippleAssist.IsCentered="True"
+                    Click="onBtnSave"
+                    ClipToBounds="True"
+                    Style="{StaticResource BaseMetroWindowButtonStyle}">
 
-        <Border
-            Name="Border_Btn_Load"
-            BorderBrush="Transparent"
-            BorderThickness="0,0,0,3">
-            <Button
-                Name="Btn_Load"
-                Height="32"
-                materialDesign:RippleAssist.IsCentered="True"
-                Click="onBtnLoad"
-                ClipToBounds="True"
-                Style="{StaticResource BaseMetroWindowButtonStyle}">
-                <StackPanel Orientation="Horizontal">
-                    <materialDesign:PackIcon Kind="FolderOpen" />
-                    <TextBlock Text="Load Drawing" />
-                </StackPanel>
-            </Button>
-        </Border>
-        <Border
-            Name="Border_Btn_Save"
-            BorderBrush="Transparent"
-            BorderThickness="0,0,0,3">
-            <Button
-                Name="Btn_Save"
-                Height="32"
-                VerticalAlignment="Bottom"
-                materialDesign:RippleAssist.IsCentered="True"
-                Click="onBtnSave"
-                ClipToBounds="True"
-                Style="{StaticResource BaseMetroWindowButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="ContentSave" />
+                        <TextBlock
+                            Margin="5,0,0,0"
+                            Style="{StaticResource MetroTextBlock}"
+                            Text="Save Drawing" />
+                    </StackPanel>
 
-                <StackPanel Orientation="Horizontal">
-                    <materialDesign:PackIcon Kind="ContentSave" />
-                    <TextBlock Style="{StaticResource MetroTextBlock}" Text="Save Drawing" />
-                </StackPanel>
+                </Button>
+            </Border>
 
-            </Button>
-        </Border>
+            <Border BorderBrush="Transparent" BorderThickness="0,0,0,3">
+                <Button
+                    Height="32"
+                    VerticalAlignment="Bottom"
+                    HorizontalContentAlignment="Left"
+                    materialDesign:RippleAssist.IsCentered="True"
+                    Click="onBtnAddSingle"
+                    ClipToBounds="True"
+                    Style="{StaticResource BaseMetroWindowButtonStyle}">
 
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="PlusCircleOutline" />
+                        <TextBlock
+                            Margin="5,0,0,0"
+                            Style="{StaticResource MetroTextBlock}"
+                            Text="Add drawing as single layer" />
+                    </StackPanel>
+
+                </Button>
+            </Border>
+
+            <Border BorderBrush="Transparent" BorderThickness="0,0,0,3">
+                <Button
+                    Height="32"
+                    VerticalAlignment="Bottom"
+                    HorizontalContentAlignment="Left"
+                    materialDesign:RippleAssist.IsCentered="True"
+                    Click="onBtnAddMultiple"
+                    ClipToBounds="True"
+                    Style="{StaticResource BaseMetroWindowButtonStyle}">
+
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="PlusCircleMultipleOutline" />
+                        <TextBlock
+                            Margin="5,0,0,0"
+                            Style="{StaticResource MetroTextBlock}"
+                            Text="Add drawing as multiple layers" />
+                    </StackPanel>
+
+                </Button>
+            </Border>
+        </StackPanel>
         <StackPanel Margin="10">
             <TextBlock Style="{StaticResource MaterialDesignTitleTextBlock}" Text="NDI Source" />
             <Controls:SplitButton

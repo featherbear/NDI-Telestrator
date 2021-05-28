@@ -156,6 +156,16 @@ namespace NDI_Telestrator
                 OnPropertyChanged();
             }
         }
+
+        private void onBtnAddSingle(object sender, RoutedEventArgs e)
+        {
+            InkControls.requestAddDrawing(false);
+        }
+
+        private void onBtnAddMultiple(object sender, RoutedEventArgs e)
+        {
+            InkControls.requestAddDrawing(true);
+        }
     }
 
 
