@@ -1,0 +1,146 @@
+﻿<Controls:Flyout
+    x:Class="NDI_Telestrator.OptionsDialogue"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+    xmlns:XAMLConverters="clr-namespace:NDI_Telestrator.XAMLConverters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:enums="clr-namespace:NDI_Telestrator.Enums"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:telestrator="clr-namespace:NDI_Telestrator"
+    x:Name="optionsDialogue"
+    Width="300"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    Header="About"
+    IsOpen="{Binding IsOpen}"
+    Position="Right"
+    mc:Ignorable="d">
+    <Controls:Flyout.Resources>
+        <XAMLConverters:ReverseConverter x:Key="ReverseConverter" />
+    </Controls:Flyout.Resources>
+    <StackPanel>
+
+        <Border
+            Name="Border_Btn_Load"
+            BorderBrush="Transparent"
+            BorderThickness="0,0,0,3">
+            <Button
+                Name="Btn_Load"
+                Height="32"
+                materialDesign:RippleAssist.IsCentered="True"
+                Click="onBtnLoad"
+                ClipToBounds="True"
+                Style="{StaticResource BaseMetroWindowButtonStyle}">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="FolderOpen" />
+                    <TextBlock Text="Load Drawing" />
+                </StackPanel>
+            </Button>
+        </Border>
+        <Border
+            Name="Border_Btn_Save"
+            BorderBrush="Transparent"
+            BorderThickness="0,0,0,3">
+            <Button
+                Name="Btn_Save"
+                Height="32"
+                VerticalAlignment="Bottom"
+                materialDesign:RippleAssist.IsCentered="True"
+                Click="onBtnSave"
+                ClipToBounds="True"
+                Style="{StaticResource BaseMetroWindowButtonStyle}">
+
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="ContentSave" />
+                    <TextBlock Style="{StaticResource MetroTextBlock}" Text="Save Drawing" />
+                </StackPanel>
+
+            </Button>
+        </Border>
+
+        <StackPanel Margin="10">
+            <TextBlock Style="{StaticResource MaterialDesignTitleTextBlock}" Text="NDI Source" />
+            <Controls:SplitButton
+                x:Name="NDISourcesDropdown"
+                Margin="0,5,0,0"
+                HorizontalContentAlignment="Left"
+                Command="{Binding handleOpenNDISourceDropdown, ElementName=optionsDialogue}"
+                DisplayMemberPath="Name"
+                ItemsSource="{Binding background.Sources, ElementName=optionsDialogue}"
+                SelectionChanged="NDISources_Selected">
+                <Controls:SplitButton.Icon>
+                    <materialDesign:PackIcon Kind="Video" />
+                </Controls:SplitButton.Icon>
+            </Controls:SplitButton>
+        </StackPanel>
+
+        <StackPanel Margin="10">
+            <TextBlock Style="{StaticResource MaterialDesignTitleTextBlock}" Text="Screenshots" />
+
+            <TextBlock Text="Screenshot Format" />
+            <Controls:SplitButton
+                x:Name="ScreenshotFormatDropdown"
+                Margin="0,5,0,0"
+                HorizontalContentAlignment="Left"
+                Command="{Binding handleOpenScreenshotFormatDropdown, ElementName=optionsDialogue}"
+                DisplayMemberPath="DisplayName"
+                ItemsSource="{enums:EnumToItemsSource {x:Type enums:ScreenshotFormatTypes}}"
+                SelectedIndex="{Binding bindScreenshotFormatTypeIndex, ElementName=optionsDialogue}" />
+
+            <TextBlock Margin="0,5,0,0" Text="Quick Save" />
+            <StackPanel Orientation="Horizontal">
+                <Controls:ToggleSwitch IsChecked="{Binding Source={x:Static telestrator:Options.quickSaveEnabled}, Path=.}" IsCheckedChanged="ToggleSwitch_IsCheckedChanged" />
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel Margin="10">
+            <TextBlock Style="{StaticResource MaterialDesignTitleTextBlock}" Text="Layers" />
+            <Border BorderBrush="Transparent" BorderThickness="0,0,0,3">
+                <Button
+                    Width="30"
+                    Height="32"
+                    VerticalAlignment="Bottom"
+                    materialDesign:RippleAssist.IsCentered="True"
+                    Click="onBtnCreateLayer"
+                    ClipToBounds="True"
+                    Style="{StaticResource MaterialDesignToolForegroundButton}">
+                    <materialDesign:PackIcon Kind="PlusBox" />
+                </Button>
+            </Border>
+            <ListView
+                ItemsSource="{Binding whiteboard.InkLayers, Converter={StaticResource ReverseConverter}, ElementName=optionsDialogue}"
+                SelectedIndex="{Binding selectedIndex}"
+                SelectionChanged="ListBox_SelectionChanged"
+                SelectionMode="Single">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Width="200" Header="gack2">
+
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Image Source="{Binding Bitmap}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+
+
+                        <GridViewColumn Header="gack">
+
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Strokes.Count}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <StackPanel Name="ABC" />
+
+
+        </StackPanel>
+    </StackPanel>
+</Controls:Flyout>
