@@ -57,7 +57,7 @@ namespace NDI_Telestrator
 
             System.Windows.Forms.OpenFileDialog openDialog = new System.Windows.Forms.OpenFileDialog();
             openDialog.Filter = "Ink Stroke File (*.isf)|*.isf|Telestrator File (*.tls)|*.tls|All supported files|*.isf;*.tls";
-            openDialog.FilterIndex = 2;
+            openDialog.FilterIndex = 3;
 
             if (openDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK) return null;
 
