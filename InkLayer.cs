@@ -25,9 +25,24 @@ namespace NDI_Telestrator
         public event PropertyChangedEventHandler PropertyChanged;
         #endregion
 
-        public event EventHandler LayerUpdated;
+        public enum HistoryDataType
+        {
+            ClearBoard,
+            AddStroke,
+            DeleteStroke
+        }
 
-        public Queue<Stroke> redoQueue;
+        public struct HistoryData
+        {
+            public HistoryDataType type;
+            public object dataA;
+            public object dataB;
+        }
+
+        public Stack<HistoryData> backHistory = new Stack<HistoryData>();
+        public Queue<HistoryData> forwardHistory = new Queue<HistoryData>();
+
+        public event EventHandler LayerUpdated;
 
         // The stylus/touch ink doesn't get captured via the RenderTargetBitmap
         // function so we'll add it to a Stroke that we add it in
@@ -51,7 +66,6 @@ namespace NDI_Telestrator
         {
             Background = System.Windows.Media.Brushes.Transparent;
             UseCustomCursor = true;
-            redoQueue = new Queue<Stroke>();
 
             Width = parent.Width;
             Height = parent.Height;
@@ -86,28 +100,49 @@ namespace NDI_Telestrator
 
         public void Undo()
         {
-            if (Strokes.Count > 0)
+            if (backHistory.Count > 0)
             {
-                redoQueue.Enqueue(Strokes.Last());
-                Strokes.RemoveAt(Strokes.Count - 1);
+                HistoryData evt = backHistory.Pop();
+
+                forwardHistory.Enqueue(evt);
+                switch (evt.type)
+                {
+                    case HistoryDataType.AddStroke:
+                        Strokes.Remove((Stroke)evt.dataA); //Strokes.RemoveAt(Strokes.Count - 1);
+                        break;
+                }
+
                 _notifyUpdate();
             }
         }
 
         public void Redo()
         {
-            if (redoQueue.Count > 0)
+            if (forwardHistory.Count > 0)
             {
-                Strokes.Add(redoQueue.Dequeue());
+                HistoryData evt = forwardHistory.Dequeue();
+
+                backHistory.Push(evt);
+
+                switch (evt.type)
+                {
+                    case HistoryDataType.AddStroke:
+                        Strokes.Add((Stroke)evt.dataA);
+                        break;
+                }
+
                 _notifyUpdate();
             }
         }
 
         private void _handleStrokeCollection(Stroke stroke)
         {
-            // Clear the redo queue on new stroke input
             // TODO: Check if working wtih stroke move / copy / drag
-            redoQueue.Clear();
+
+
+            backHistory.Push(new HistoryData { type = HistoryDataType.AddStroke, dataA = stroke });
+            forwardHistory.Clear(); // Clear the redo queue on new stroke input
+
             _notifyUpdate();
         }
 

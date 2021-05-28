@@ -191,8 +191,8 @@ namespace NDI_Telestrator
 
         public void updateUndoRedoStates()
         {
-            hasUndoContent = activeInkCanvas.Strokes.Count > 0;
-            hasRedoContent = activeInkCanvas.redoQueue.Count > 0;
+            hasUndoContent = activeInkCanvas.backHistory.Count > 0;
+            hasRedoContent = activeInkCanvas.forwardHistory.Count > 0;
         }
 
         public void Clear()
