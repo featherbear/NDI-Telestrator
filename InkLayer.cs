@@ -222,11 +222,14 @@ namespace NDI_Telestrator
 
         // The 1-pixel stroke gets added somewhere between PreviewStylusUp and StylusUp
 
+        private bool wasStrokeCaptured = false;
+
         protected override void OnStylusUp(StylusEventArgs e)
         {
             // Remove the last stroke (1)
             stylusStrokeBuffer = null;
             Strokes.RemoveAt(Strokes.Count - 1);
+            wasStrokeCaptured = true;
 
             // Using OnMouseLeftButtonUp instead now
             // OnStrokeCollected(new InkCanvasStrokeCollectedEventArgs(Strokes[Strokes.Count - 1]) { RoutedEvent = InkCanvas.StrokeCollectedEvent });
@@ -234,16 +237,15 @@ namespace NDI_Telestrator
             base.OnStylusUp(e);
         }
 
-        private bool wasMouseCaptured = false;
         protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
         {
-            wasMouseCaptured = IsMouseCaptured;
+            if (!wasStrokeCaptured) wasStrokeCaptured = IsMouseCaptured;
             base.OnPreviewMouseUp(e);
         }
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
         {
-            if (wasMouseCaptured) _handleStrokeCollection(Strokes[Strokes.Count - 1]);
+            if (wasStrokeCaptured) _handleStrokeCollection(Strokes[Strokes.Count - 1]);
             
             base.OnMouseLeftButtonUp(e);
         }
