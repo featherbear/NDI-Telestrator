@@ -80,7 +80,7 @@ namespace NDI_Telestrator
         {
             get
             {
-                return new SimpleCommand(o => NDISourcesDropdown.IsExpanded = true);
+                return new SimpleCommand(o => NDISourcesDropdown.IsDropDownOpen = true);
             }
         }
 
@@ -106,7 +106,7 @@ namespace NDI_Telestrator
         {
             get
             {
-                return new SimpleCommand(o => ScreenshotFormatDropdown.IsExpanded = true);
+                return new SimpleCommand(o => ScreenshotFormatDropdown.IsDropDownOpen = true);
             }
         }
 
@@ -123,7 +123,7 @@ namespace NDI_Telestrator
             InkControls.onBtnSaveClick(sender, e);
         }
 
-        private void ToggleSwitch_IsCheckedChanged(object sender, EventArgs e)
+        private void onTglQuickSave(object sender, EventArgs e)
         {
             Options.quickSaveEnabled = !Options.quickSaveEnabled;
         }
