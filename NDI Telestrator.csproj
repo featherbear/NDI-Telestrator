@@ -110,7 +110,7 @@
     </Compile>
     <Compile Include="helpers\SimpleCommand.cs" />
     <Compile Include="WhiteboardCanvas.cs" />
-    <Compile Include="XAMLConverters.cs" />
+    <Compile Include="helpers\XAMLConverters.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
