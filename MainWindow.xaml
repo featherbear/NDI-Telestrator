@@ -16,6 +16,35 @@
     FontFamily="Montserrat"
     KeyDown="MainWindow_KeyDown"
     WindowStartupLocation="CenterScreen">
+    <Controls:MetroWindow.Resources>
+        <DataTemplate x:Key="My.Datatemplates.CustomColorPickerContent">
+            <Grid x:Name="RootGrid">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <materialDesign:PackIcon Foreground="{Binding Converter={x:Static Controls:ColorToSolidColorBrushConverter.DefaultInstance}}" Kind="Pencil" />
+                <!--
+                <mah:ClipBorder
+                        Grid.Column="0"
+                        Width="12"
+                        Height="12"
+                        Background="{DynamicResource MahApps.Brushes.Tile.Small}"
+                        BorderBrush="{DynamicResource MahApps.Brushes.Control.Border}"
+                        BorderThickness="2"
+                        CornerRadius="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualHeight, Converter={mah:SizeToCornerRadiusConverter}}">
+                <Grid Background="{Binding Converter={x:Static mah:ColorToSolidColorBrushConverter.DefaultInstance}}" />
+            </mah:ClipBorder>
+                -->
+
+            </Grid>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding}" Value="{x:Null}">
+                    <Setter TargetName="RootGrid" Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </Controls:MetroWindow.Resources>
 
     <Controls:MetroWindow.Flyouts>
         <Controls:FlyoutsControl>
@@ -180,7 +209,8 @@
                 </Controls:DropDownButton.Items>
             </Controls:DropDownButton>
 
-            <Controls:DropDownButton
+            <Controls:ColorPicker Width="Auto" SelectedColorTemplate="{StaticResource My.Datatemplates.CustomColorPickerContent}"  SelectedColorChanged="ColorPicker_SelectedColorChanged" />
+            <!--<Controls:DropDownButton
                 Margin="5"
                 ArrowVisibility="Collapsed"
                 Content="Ink Colour"
@@ -199,12 +229,14 @@
                 </Controls:DropDownButton.Icon>
                 <Controls:DropDownButton.Items>
 
-                    <!--
+            -->
+            <!--
                     <Controls:SplitButton Margin="5" HorizontalContentAlignment="Left">
                         <Controls:SplitButton.Icon>
                             <materialDesign:PackIcon Kind="Pencil" />
                         </Controls:SplitButton.Icon>
                         <Controls:SplitButton.Items>-->
+            <!--
                     <Border>
                         <Controls:ColorCanvas
                             x:Name="ColorCanvasExample"
@@ -217,9 +249,11 @@
                             SelectedColor="Blue" />
                     </Border>
 
-                    <!--<Controls:ColorPicker Width="Auto" SelectedColorTemplate="{StaticResource My.Datatemplates.CustomColorPickerContent}" />-->
-                    <!--</Controls:SplitButton.Items>
+            -->
+            <!--<Controls:ColorPicker Width="Auto" SelectedColorTemplate="{StaticResource My.Datatemplates.CustomColorPickerContent}" />-->
+            <!--</Controls:SplitButton.Items>
                     </Controls:SplitButton>-->
+            <!--
 
                     <Border BorderBrush="Transparent" BorderThickness="0,0,0,3">
                         <Button
@@ -289,7 +323,7 @@
                         </Button>
                     </Border>
                 </Controls:DropDownButton.Items>
-            </Controls:DropDownButton>
+            </Controls:DropDownButton>-->
 
 
             <Controls:DropDownButton

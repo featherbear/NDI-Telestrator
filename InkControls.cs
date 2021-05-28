@@ -109,6 +109,11 @@ namespace NDI_Telestrator
             whiteboard.Background = Brushes.Transparent;
         }
 
+        public static void setPenColour(Color colour)
+        {
+            whiteboard.SetPenColour(colour);
+        }
+
         public static void onBtnPenClick(object sender, RoutedEventArgs e)
         {
             /*
@@ -125,7 +130,7 @@ namespace NDI_Telestrator
             Button btn = (Button)sender;
             //btn.BorderBrush = Brushes.Red;
 
-            whiteboard.SetPenColor(btn.Foreground);
+         
         }
 
         public static void clearWhiteboard()

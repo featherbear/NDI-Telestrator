@@ -158,5 +158,9 @@ namespace NDI_Telestrator
         {
             optionsDialogue.IsOpen = !optionsDialogue.IsOpen;
         }
+        private void ColorPicker_SelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color?> e)
+        {
+            if (e.NewValue != null) InkControls.setPenColour((Color)e.NewValue);
+        }
     }
 }

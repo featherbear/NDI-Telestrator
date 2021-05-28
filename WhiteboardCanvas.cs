@@ -28,7 +28,7 @@ namespace NDI_Telestrator
         public event EventHandler<InkLayer> CanvasUpdated;
 
         private double brushThickness = 1.0;
-        private Color brushColor = Colors.Black;
+        private Color brushColour = Colors.Black;
 
         #region activeInkCanvas
         private InkLayer _activeInkCanvas;
@@ -166,22 +166,20 @@ namespace NDI_Telestrator
         //}
 
 
-        public void SetPenColor(Color color)
+        public void SetPenColour(Color colour)
         {
-            brushColor = color;
-            setPenAttributes(brushColor, brushThickness);
+            brushColour = colour;
+            setPenAttributes(brushColour, brushThickness);
         }
 
-        public void SetPenColor(Brush color)
+        public void SetPenColor(Brush colour)
         {
-            var scb = (SolidColorBrush)color;
-            SetPenColor(scb.Color);
+            SetPenColour(((SolidColorBrush)colour).Color);
         }
 
         public void SetPenThickness(double size)
         {
-            brushThickness = size;
-            setPenAttributes(brushColor, size);
+            setPenAttributes(brushColour, (brushThickness = size));
         }
 
         public System.Windows.Media.Imaging.BitmapFrame Draw(Brush background = null)
