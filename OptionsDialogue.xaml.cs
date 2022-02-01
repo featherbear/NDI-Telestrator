@@ -66,47 +66,18 @@ namespace NDI_Telestrator
         {
             InitializeComponent();
 
-
-
-            Console.WriteLine(NDISourcesDropdown);
-            this.Loaded += (_sender, _evt) =>
+            // Fix dropdown disappearing when the main button is pressed (instead of the arrow)
+            // https://github.com/featherbear/NDI-Telestrator/issues/3
+            Loaded += (_sender, _evt) =>
             {
-                var objButton = (Button)NDISourcesDropdown.GetType().GetField("button", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(NDISourcesDropdown);
-                var evtButtonClick = (RoutedEventHandler)NDISourcesDropdown.GetType()
-                    .GetMethod("ButtonClick", BindingFlags.Instance | BindingFlags.NonPublic)
-                    .CreateDelegate(typeof(RoutedEventHandler), NDISourcesDropdown);
-
-                objButton.Click -= evtButtonClick;
-                objButton.Click += (sender, evt) =>
-                {
-                    NDISourcesDropdown.IsDropDownOpen = !NDISourcesDropdown.IsDropDownOpen;
-                };
+                helpers.MahApps_SplitBox_Helper.setupMainClickDropdown(NDISourcesDropdown);
+                helpers.MahApps_SplitBox_Helper.setupMainClickDropdown(ScreenshotFormatDropdown);
             };
         }
 
         private void NDISources_Selected(object sender, SelectionChangedEventArgs e)
         {
             background.setSource((NewTek.NDI.Source)e.AddedItems[0]);
-        }
-
-
-
-
-        public ICommand handleOpenNDISourceDropdown
-        {
-            get
-            {
-                return new SimpleCommand(o =>
-                {
-                    var obj = ((MahApps.Metro.Controls.SplitButton)o);
-
-
-
-
-                    //((MahApps.Metro.Controls.SplitButton)o).reb
-
-                });
-            }
         }
 
         #region Screenshot Options
@@ -122,15 +93,6 @@ namespace NDI_Telestrator
             set
             {
                 Options.screenshotFormatType = (Enums.ScreenshotFormatTypes)value;
-            }
-        }
-
-
-        public ICommand handleOpenScreenshotFormatDropdown
-        {
-            get
-            {
-                return new SimpleCommand(o => ScreenshotFormatDropdown.IsDropDownOpen = true);
             }
         }
 
