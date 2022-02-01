@@ -1,8 +1,13 @@
 using System;
 using System.ComponentModel;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace NDI_Telestrator
 {
@@ -70,8 +75,43 @@ namespace NDI_Telestrator
         {
             get
             {
-                return new SimpleCommand(o => NDISourcesDropdown.IsDropDownOpen = true);
+                return new SimpleCommand(o => {
+                var obj = ((MahApps.Metro.Controls.SplitButton)o);
+                obj.Click += Obj_Click;
+                var t = (Button)obj.GetType().GetField("expanderButton", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(obj);
+                var f = obj.GetType().GetMethod("ExpanderMouseLeftButtonDown", BindingFlags.Instance | BindingFlags.NonPublic);
+
+                //obj.Click -= t;
+                Console.WriteLine(t);
+                    // Console.WriteLine(f.CreateDelegate(PreviewMouseLeftButtonDownEvent.GetType(), obj));
+                    //Delegate.CreateDelegate(PreviewMouseLeftButtonDownEvent.GetType(), f);
+                    var d = f.CreateDelegate(
+                            System.Linq.Expressions.Expression.GetDelegateType(
+
+                         (from parameter in f.GetParameters() select parameter.ParameterType)
+            .Concat(new[] { f.ReturnType })
+            .ToArray()));
+
+
+
+
+
+
+                    t.PreviewMouseLeftButtonDown -= (MouseButtonEventHandler) d;
+
+                    //((MahApps.Metro.Controls.SplitButton)o).reb
+                    NDISourcesDropdown.IsDropDownOpen = true;
+                });
             }
+        }
+
+        private void Obj_Click(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("YEE");
+            NDISourcesDropdown.IsDropDownOpen = true;
+
+            e.Handled = true;
+            
         }
 
 
