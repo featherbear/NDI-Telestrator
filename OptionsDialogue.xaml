@@ -113,7 +113,6 @@
                 x:Name="NDISourcesDropdown"
                 Margin="0,5,0,0"
                 HorizontalContentAlignment="Left"
-                Command="{Binding handleOpenNDISourceDropdown, ElementName=optionsDialogue}"
                 DisplayMemberPath="Name"
                 ItemsSource="{Binding background.Sources, ElementName=optionsDialogue}"
                 SelectionChanged="NDISources_Selected">
@@ -133,7 +132,6 @@
                 x:Name="ScreenshotFormatDropdown"
                 Margin="0,5,0,0"
                 HorizontalContentAlignment="Left"
-                Command="{Binding handleOpenScreenshotFormatDropdown, ElementName=optionsDialogue}"
                 DisplayMemberPath="DisplayName"
                 ItemsSource="{enums:EnumToItemsSource {x:Type enums:ScreenshotFormatTypes}}"
                 SelectedIndex="{Binding bindScreenshotFormatTypeIndex, ElementName=optionsDialogue}" />

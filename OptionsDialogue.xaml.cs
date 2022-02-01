@@ -1,8 +1,13 @@
 using System;
 using System.ComponentModel;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace NDI_Telestrator
 {
@@ -55,25 +60,25 @@ namespace NDI_Telestrator
         }
         public event PropertyChangedEventHandler PropertyChanged;
 
+
+
         public OptionsDialogue()
         {
             InitializeComponent();
 
+            // Fix dropdown disappearing when the main button is pressed (instead of the arrow)
+            // https://github.com/featherbear/NDI-Telestrator/issues/3
+            Loaded += (_sender, _evt) =>
+            {
+                helpers.MahApps_SplitBox_Helper.setupMainClickDropdown(NDISourcesDropdown);
+                helpers.MahApps_SplitBox_Helper.setupMainClickDropdown(ScreenshotFormatDropdown);
+            };
         }
 
         private void NDISources_Selected(object sender, SelectionChangedEventArgs e)
         {
             background.setSource((NewTek.NDI.Source)e.AddedItems[0]);
         }
-
-        public ICommand handleOpenNDISourceDropdown
-        {
-            get
-            {
-                return new SimpleCommand(o => NDISourcesDropdown.IsDropDownOpen = true);
-            }
-        }
-
 
         #region Screenshot Options
 
@@ -88,15 +93,6 @@ namespace NDI_Telestrator
             set
             {
                 Options.screenshotFormatType = (Enums.ScreenshotFormatTypes)value;
-            }
-        }
-
-
-        public ICommand handleOpenScreenshotFormatDropdown
-        {
-            get
-            {
-                return new SimpleCommand(o => ScreenshotFormatDropdown.IsDropDownOpen = true);
             }
         }
 
