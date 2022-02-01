@@ -60,10 +60,28 @@ namespace NDI_Telestrator
         }
         public event PropertyChangedEventHandler PropertyChanged;
 
+
+
         public OptionsDialogue()
         {
             InitializeComponent();
 
+
+
+            Console.WriteLine(NDISourcesDropdown);
+            this.Loaded += (_sender, _evt) =>
+            {
+                var objButton = (Button)NDISourcesDropdown.GetType().GetField("button", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(NDISourcesDropdown);
+                var evtButtonClick = (RoutedEventHandler)NDISourcesDropdown.GetType()
+                    .GetMethod("ButtonClick", BindingFlags.Instance | BindingFlags.NonPublic)
+                    .CreateDelegate(typeof(RoutedEventHandler), NDISourcesDropdown);
+
+                objButton.Click -= evtButtonClick;
+                objButton.Click += (sender, evt) =>
+                {
+                    NDISourcesDropdown.IsDropDownOpen = !NDISourcesDropdown.IsDropDownOpen;
+                };
+            };
         }
 
         private void NDISources_Selected(object sender, SelectionChangedEventArgs e)
@@ -71,49 +89,25 @@ namespace NDI_Telestrator
             background.setSource((NewTek.NDI.Source)e.AddedItems[0]);
         }
 
+
+
+
         public ICommand handleOpenNDISourceDropdown
         {
             get
             {
-                return new SimpleCommand(o => {
-                var obj = ((MahApps.Metro.Controls.SplitButton)o);
-                obj.Click += Obj_Click;
-                var t = (Button)obj.GetType().GetField("expanderButton", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(obj);
-                var f = obj.GetType().GetMethod("ExpanderMouseLeftButtonDown", BindingFlags.Instance | BindingFlags.NonPublic);
-
-                //obj.Click -= t;
-                Console.WriteLine(t);
-                    // Console.WriteLine(f.CreateDelegate(PreviewMouseLeftButtonDownEvent.GetType(), obj));
-                    //Delegate.CreateDelegate(PreviewMouseLeftButtonDownEvent.GetType(), f);
-                    var d = f.CreateDelegate(
-                            System.Linq.Expressions.Expression.GetDelegateType(
-
-                         (from parameter in f.GetParameters() select parameter.ParameterType)
-            .Concat(new[] { f.ReturnType })
-            .ToArray()));
+                return new SimpleCommand(o =>
+                {
+                    var obj = ((MahApps.Metro.Controls.SplitButton)o);
 
 
 
-
-
-
-                    t.PreviewMouseLeftButtonDown -= (MouseButtonEventHandler) d;
 
                     //((MahApps.Metro.Controls.SplitButton)o).reb
-                    NDISourcesDropdown.IsDropDownOpen = true;
+
                 });
             }
         }
-
-        private void Obj_Click(object sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("YEE");
-            NDISourcesDropdown.IsDropDownOpen = true;
-
-            e.Handled = true;
-            
-        }
-
 
         #region Screenshot Options
 
