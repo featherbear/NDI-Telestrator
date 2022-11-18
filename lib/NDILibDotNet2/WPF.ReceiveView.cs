@@ -1,5 +1,4 @@
-﻿using NAudio.Wave;
-using NewTek;
+﻿using NewTek;
 using NewTek.NDI;
 using System;
 using System.Collections.Generic;
@@ -78,15 +77,7 @@ namespace NewTek.NDI.WPF
             get { return _volume; }
             set
             {
-                if (value != _volume)
-                {
-                    _volume = Math.Max(0.0f, Math.Min(1.0f, value));
-
-                    if (_wasapiOut != null)
-                        _wasapiOut.Volume = _volume;
-
-                    NotifyPropertyChanged("Volume");
-                }
+                 _volume = Math.Max(0.0f, Math.Min(1.0f, value));
             }
         }
 
@@ -409,14 +400,6 @@ namespace NewTek.NDI.WPF
 
                         _receiveThread = null;
                     }
-
-                    // Stop the audio device if needed
-                    if (_wasapiOut != null)
-                    {
-                        _wasapiOut.Stop();
-                        _wasapiOut.Dispose();
-                        _wasapiOut = null;
-                    }
                 }
 
                 // Destroy the receiver
@@ -670,103 +653,6 @@ namespace NewTek.NDI.WPF
 
                     // audio is beyond the scope of this example
                     case NDIlib.frame_type_e.frame_type_audio:
-
-                        // if no audio or disabled, nothing to do
-                        if (!_audioEnabled || audioFrame.p_data == IntPtr.Zero || audioFrame.no_samples == 0)
-                        {
-                            // alreays free received frames
-                            NDIlib.recv_free_audio_v2(_recvInstancePtr, ref audioFrame);
-
-                            break;
-                        }
-
-                        // if the audio format changed, we need to reconfigure the audio device
-                        bool formatChanged = false;
-
-                        // make sure our format has been created and matches the incomming audio
-                        if (_waveFormat == null ||
-                            _waveFormat.Channels != audioFrame.no_channels ||
-                            _waveFormat.SampleRate != audioFrame.sample_rate)
-                        {
-                            // Create a wavformat that matches the incomming frames
-                            _waveFormat = WaveFormat.CreateIeeeFloatWaveFormat((int)audioFrame.sample_rate, (int)audioFrame.no_channels);
-
-                            formatChanged = true;
-                        }
-
-                        // set up our audio buffer if needed
-                        if (_bufferedProvider == null || formatChanged)
-                        {
-                            _bufferedProvider = new BufferedWaveProvider(_waveFormat);
-                            _bufferedProvider.DiscardOnBufferOverflow = true;
-                        }
-
-                        // set up our multiplexer used to mix down to 2 output channels)
-                        if (_multiplexProvider == null || formatChanged)
-                        {
-                            _multiplexProvider = new MultiplexingWaveProvider(new List<IWaveProvider>() { _bufferedProvider }, 2);
-                        }
-
-                        // set up our audio output device
-                        if (_haveAudioDevice && (_wasapiOut == null || formatChanged))
-                        {
-                            try
-                            {
-                                // We can't guarantee audio sync or buffer fill, that's beyond the scope of this example.
-                                // This is close enough to show that audio is received and converted correctly.
-                                _wasapiOut = new WasapiOut(NAudio.CoreAudioApi.AudioClientShareMode.Shared, 50);
-                                _wasapiOut.Init(_multiplexProvider);
-                                _wasapiOut.Volume = _volume;
-                                _wasapiOut.Play();
-                            }
-                            catch
-                            {
-                                // if this fails, assume that there is no audio device on the system
-                                // so that we don't retry/catch on every audio frame received
-                                _haveAudioDevice = false;
-                            }
-                        }
-
-                        // did we get a device?
-                        if (_haveAudioDevice && _wasapiOut != null)
-                        {
-                            // we're working in bytes, so take the size of a 32 bit sample (float) into account
-                            int sizeInBytes = (int)audioFrame.no_samples * (int)audioFrame.no_channels * sizeof(float);
-
-                            // NAudio is expecting interleaved audio and NDI uses planar.
-                            // create an interleaved frame and convert from the one we received
-                            NDIlib.audio_frame_interleaved_32f_t interleavedFrame = new NDIlib.audio_frame_interleaved_32f_t()
-                            {
-                                sample_rate = audioFrame.sample_rate,
-                                no_channels = audioFrame.no_channels,
-                                no_samples = audioFrame.no_samples,
-                                timecode = audioFrame.timecode
-                            };
-
-                            // we need a managed byte array to add to buffered provider
-                            byte[] audBuffer = new byte[sizeInBytes];
-
-                            // pin the byte[] and get a GC handle to it
-                            // doing it this way saves an expensive Marshal.Alloc/Marshal.Copy/Marshal.Free later
-                            // the data will only be moved once, during the fast interleave step that is required anyway
-                            GCHandle handle = GCHandle.Alloc(audBuffer, GCHandleType.Pinned);
-
-                            // access it by an IntPtr and use it for our interleaved audio buffer
-                            interleavedFrame.p_data = handle.AddrOfPinnedObject();
-
-                            // Convert from float planar to float interleaved audio
-                            // There is a matching version of this that converts to interleaved 16 bit audio frames if you need 16 bit
-                            NDIlib.util_audio_to_interleaved_32f_v2(ref audioFrame, ref interleavedFrame);
-
-                            // release the pin on the byte[]
-                            // never try to access p_data after the byte[] has been unpinned!
-                            // that IntPtr will no longer be valid.
-                            handle.Free();
-
-                            // push the byte[] buffer into the bufferedProvider for output
-                            _bufferedProvider.AddSamples(audBuffer, 0, sizeInBytes);
-                        }
-
                         // free the frame that was received
                         NDIlib.recv_free_audio_v2(_recvInstancePtr, ref audioFrame);
 
@@ -806,16 +692,6 @@ namespace NewTek.NDI.WPF
 
         // should we send video to Windows or not?
         private bool _videoEnabled = true;
-
-        // the NAudio related
-        private WasapiOut _wasapiOut = null;
-        private bool _haveAudioDevice = true;
-        private MultiplexingWaveProvider _multiplexProvider = null;
-        private BufferedWaveProvider _bufferedProvider = null;
-
-        // The last WaveFormat we used.
-        // This may change over time, so remember how we are configured currently.
-        private WaveFormat _waveFormat = null;
 
         // the current audio volume
         private float _volume = 1.0f;
