@@ -41,6 +41,21 @@ namespace NewTek.NDI.WPF
         public static readonly DependencyProperty ConnectedSourceProperty =
             DependencyProperty.Register("ConnectedSource", typeof(Source), typeof(ReceiveView), new PropertyMetadata(new Source(), OnConnectedSourceChanged));
 
+
+        [Category("NewTek NDI"),
+        Description("If true (default) received audio will be sent to the default Windows audio playback device.")]
+        public bool IsAudioEnabled
+        {
+            get { return _audioEnabled; }
+            set
+            {
+                if (value != _audioEnabled)
+                {
+                    NotifyPropertyChanged("IsAudioEnabled");
+                }
+            }
+        }
+
         [Category("NewTek NDI"),
         Description("If true (default) received video will be sent to the screen.")]
         public bool IsVideoEnabled
@@ -55,6 +70,30 @@ namespace NewTek.NDI.WPF
             }
         }
 
+        [Category("NewTek NDI"),
+        Description("Set or get the current audio volume. Range is 0.0 to 1.0")]
+        public float Volume
+        {
+            get { return _volume; }
+            set
+            {
+                 _volume = Math.Max(0.0f, Math.Min(1.0f, value));
+            }
+        }
+
+        [Category("NewTek NDI"),
+        Description("Does the current source support PTZ functionality?")]
+        public bool IsPtz
+        {
+            get { return _isPtz; }
+            set
+            {
+                if (value != _isPtz)
+                {
+                    NotifyPropertyChanged("IsPtz");
+                }
+            }
+        }
 
         [Category("NewTek NDI"),
         Description("Does the current source support record functionality?")]
@@ -91,6 +130,129 @@ namespace NewTek.NDI.WPF
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        #region PTZ Methods
+        public bool SetPtzZoom(double value)
+        {
+            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+                return false;
+
+            return NDIlib.recv_ptz_zoom(_recvInstancePtr, (float)value);
+        }
+
+        public bool SetPtzZoomSpeed(double value)
+        {
+            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+                return false;
+
+            return NDIlib.recv_ptz_zoom_speed(_recvInstancePtr, (float)value);
+        }
+
+        public bool SetPtzPanTilt(double pan, double tilt)
+        {
+            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+                return false;
+
+            return NDIlib.recv_ptz_pan_tilt(_recvInstancePtr, (float)pan, (float)tilt);
+        }
+
+        public bool SetPtzPanTiltSpeed(double panSpeed, double tiltSpeed)
+        {
+            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+                return false;
+
+            return NDIlib.recv_ptz_pan_tilt_speed(_recvInstancePtr, (float)panSpeed, (float)tiltSpeed);
+        }
+
+        public bool PtzStorePreset(int index)
+        {
+            if (!_isPtz || _recvInstancePtr == IntPtr.Zero || index < 0 || index > 99)
+                return false;
+
+            return NDIlib.recv_ptz_store_preset(_recvInstancePtr, index);
+        }
+
+        public bool PtzRecallPreset(int index, double speed)
+        {
+            if (!_isPtz || _recvInstancePtr == IntPtr.Zero || index < 0 || index > 99)
+                return false;
+
+            return NDIlib.recv_ptz_recall_preset(_recvInstancePtr, index, (float)speed);
+        }
+
+        public bool PtzAutoFocus()
+        {
+            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+                return false;
+
+            return NDIlib.recv_ptz_auto_focus(_recvInstancePtr);
+        }
+
+        public bool SetPtzFocusSpeed(double speed)
+        {
+            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+                return false;
+
+            return NDIlib.recv_ptz_focus_speed(_recvInstancePtr, (float)speed);
+        }
+
+        public bool PtzWhiteBalanceAuto()
+        {
+            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+                return false;
+
+            return NDIlib.recv_ptz_white_balance_auto(_recvInstancePtr);
+        }
+
+        public bool PtzWhiteBalanceIndoor()
+        {
+            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+                return false;
+
+            return NDIlib.recv_ptz_white_balance_indoor(_recvInstancePtr);
+        }
+
+        public bool PtzWhiteBalanceOutdoor()
+        {
+            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+                return false;
+
+            return NDIlib.recv_ptz_white_balance_outdoor(_recvInstancePtr);
+        }
+
+        public bool PtzWhiteBalanceOneShot()
+        {
+            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+                return false;
+
+            return NDIlib.recv_ptz_white_balance_oneshot(_recvInstancePtr);
+        }
+
+        public bool PtzWhiteBalanceManual(double red, double blue)
+        {
+            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+                return false;
+
+            return NDIlib.recv_ptz_white_balance_manual(_recvInstancePtr, (float)red, (float)blue);
+        }
+
+        public bool PtzExposureAuto()
+        {
+            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+                return false;
+
+            return NDIlib.recv_ptz_exposure_auto(_recvInstancePtr);
+        }
+
+        public bool PtzExposureManual(double level)
+        {
+            if (!_isPtz || _recvInstancePtr == IntPtr.Zero)
+                return false;
+
+            return NDIlib.recv_ptz_exposure_manual(_recvInstancePtr, (float)level);
+        }
+
+        #endregion PTZ Methods
 
         #region Recording Methods
         // This will start recording.If the recorder was already recording then the message is ignored.A filename is passed in as a ‘hint’.Since the recorder might 
@@ -224,6 +386,10 @@ namespace NewTek.NDI.WPF
             {
                 if (disposing)
                 {
+                    // This call happens when the window is closing, so we set the
+                    // Id to 0 to signal we don't want to process any more frames.
+                    Interlocked.Exchange(ref _receiverId, 0);
+
                     // tell the thread to exit
                     _exitThread = true;
 
@@ -242,9 +408,6 @@ namespace NewTek.NDI.WPF
                     NDIlib.recv_destroy(_recvInstancePtr);
                     _recvInstancePtr = IntPtr.Zero;
                 }
-
-                // Not required, but "correct". (see the SDK documentation)
-                NDIlib.destroy();
 
                 _disposed = true;
             }
@@ -265,6 +428,11 @@ namespace NewTek.NDI.WPF
         // connect to an NDI source in our Dictionary by name
         private void Connect(Source source)
         {
+            // Increment the receiver Id, meaning we have a new source to work with. If
+            // there's already another receiver thread running, the commands it has
+            // sent to the UI won't be processed.
+            int receiverId = Interlocked.Increment(ref _receiverId);
+
             if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(this))
                 return;
 
@@ -327,7 +495,8 @@ namespace NewTek.NDI.WPF
 
                 // start up a thread to receive on
                 _receiveThread = new Thread(ReceiveThreadProc) { IsBackground = true, Name = "NdiExampleReceiveThread" };
-                _receiveThread.Start();
+                // Pass the current receiver Id to the new thread
+                _receiveThread.Start(receiverId);
             }
         }
 
@@ -357,6 +526,7 @@ namespace NewTek.NDI.WPF
             _recvInstancePtr = IntPtr.Zero;
 
             // set function status to defaults
+            IsPtz = false;
             IsRecordingSupported = false;
             WebControlUrl = String.Empty;
         }
@@ -379,8 +549,11 @@ namespace NewTek.NDI.WPF
         }
 
         // the receive thread runs though this loop until told to exit
-        void ReceiveThreadProc()
+        void ReceiveThreadProc(object param)
         {
+            // Here we keep track of the receiver Id used for this thread.
+            int currReceiverId = (int)param;
+
             while (!_exitThread && _recvInstancePtr != IntPtr.Zero)
             {
                 // The descriptors
@@ -397,6 +570,9 @@ namespace NewTek.NDI.WPF
 
                     // frame settings - check for extended functionality
                     case NDIlib.frame_type_e.frame_type_status_change:
+                        // check for PTZ
+                        IsPtz = NDIlib.recv_ptz_is_supported(_recvInstancePtr);
+
                         // Check for recording
                         IsRecordingSupported = NDIlib.recv_recording_is_supported(_recvInstancePtr);
 
@@ -443,8 +619,18 @@ namespace NewTek.NDI.WPF
 
                         // We need to be on the UI thread to write to our bitmap
                         // Not very efficient, but this is just an example
-                        Dispatcher.BeginInvoke(new Action(delegate
+                        Dispatcher.BeginInvoke(new Action(() =>
                         {
+                        // If the local receiver Id is not the same as the global receiver Id,
+                        // then that means that either the connection source has changed, or
+                        // the window has closed, in which case the latest receiver Id
+                        // will be 0. If either is true, we stop processing data.
+                        if (currReceiverId != _receiverId
+                                || _receiverId == 0)
+                            {
+                                return;
+                            }
+
                         // resize the writeable if needed
                         if (VideoBitmap == null ||
                                 VideoBitmap.PixelWidth != xres ||
@@ -465,10 +651,12 @@ namespace NewTek.NDI.WPF
 
                         break;
 
+                    // audio is beyond the scope of this example
                     case NDIlib.frame_type_e.frame_type_audio:
+                        // free the frame that was received
                         NDIlib.recv_free_audio_v2(_recvInstancePtr, ref audioFrame);
-                        break;
 
+                        break;
                     // Metadata
                     case NDIlib.frame_type_e.frame_type_metadata:
 
@@ -499,11 +687,23 @@ namespace NewTek.NDI.WPF
         // the bitmap source we copy received frames into
         private WriteableBitmap VideoBitmap;
 
+        // should we send audio to Windows or not?
+        private bool _audioEnabled = true;
+
         // should we send video to Windows or not?
         private bool _videoEnabled = true;
 
+        // the current audio volume
+        private float _volume = 1.0f;
+
+        private bool _isPtz = false;
         private bool _canRecord = false;
         private String _webControlUrl = String.Empty;
         private String _receiverName = String.Empty;
+
+        // This variable keeps track of the current Id of the receiver object. This
+        // is a way to avoid processing frames on the UI thread when either the
+        // connection source gets changed or the window closes.
+        private int _receiverId = 0;
     }
 }
