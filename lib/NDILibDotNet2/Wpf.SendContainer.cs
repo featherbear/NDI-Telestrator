@@ -1,3 +1,4 @@
+﻿using NAudio.Wave;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace NewTek.NDI.WPF
-{    
+{
     public class NdiSendContainer : Viewbox, INotifyPropertyChanged, IDisposable
     {
         [Category("NewTek NDI"),
@@ -45,7 +46,7 @@ namespace NewTek.NDI.WPF
         }
         public static readonly DependencyProperty NdiFrameRateNumeratorProperty =
             DependencyProperty.Register("NdiFrameRateNumerator", typeof(int), typeof(NdiSendContainer), new PropertyMetadata(60000));
-        
+
         [Category("NewTek NDI"),
         Description("NDI output frame rate denominator. Required.")]
         public int NdiFrameRateDenominator
@@ -121,7 +122,7 @@ namespace NewTek.NDI.WPF
                 {
                     isPausedValue = value;
                     NotifyPropertyChanged("IsSendPaused");
-                } 
+                }
             }
         }
 
@@ -140,6 +141,116 @@ namespace NewTek.NDI.WPF
             }
         }
 
+        [Category("NewTek NDI"),
+        Description("If you need partial transparency, set this to true. If not, set to false and save some CPU cycles.")]
+        public bool SendSystemAudio
+        {
+            get { return sendSystemAudio; }
+            set
+            {
+                if (value != sendSystemAudio)
+                {
+                    if (value)
+                    {
+                        try
+                        {
+                            audioCap = new WasapiLoopbackCapture();
+                            audioCap.StartRecording();
+                            audioSampleRate = audioCap.WaveFormat.SampleRate;
+                            audioSampleSizeInBytes = audioCap.WaveFormat.BitsPerSample / 8;
+                            audioNumChannels = audioCap.WaveFormat.Channels;
+
+                            audioCap.DataAvailable += AudioCap_DataAvailable;
+                        }
+                        catch
+                        {
+                            // loopback capture may not be available on all systems
+                            value = false;
+                        }
+                    }
+                    else
+                    {
+                        if (audioCap != null)
+                        {
+                            if (audioCap.CaptureState == NAudio.CoreAudioApi.CaptureState.Capturing)
+                            {
+                                audioCap.StopRecording();
+
+                                while (audioCap.CaptureState != NAudio.CoreAudioApi.CaptureState.Stopped)
+                                {
+                                    Thread.Sleep(10);
+                                }
+                            }
+
+                            audioCap.Dispose();
+                            audioCap = null;
+                        }
+                    }
+
+                    sendSystemAudio = value;
+                    NotifyPropertyChanged("SendSystemAudio");
+                }
+            }
+        }
+
+        private void AudioCap_DataAvailable(object sender, WaveInEventArgs e)
+        {
+            if (isPausedValue || sendInstancePtr == IntPtr.Zero)
+                return;
+
+            // how many samples?
+            int numSamples = (e.BytesRecorded / (audioNumChannels * audioSampleSizeInBytes));
+
+            // pin the byte[] audio received and get a GC handle to it
+            GCHandle interleavedHandle = GCHandle.Alloc(e.Buffer, GCHandleType.Pinned);
+
+            if (audioSampleSizeInBytes == 2)
+            {
+                // make an temporary interleaved NDI audio frame around the received samples
+                NDIlib.audio_frame_interleaved_16s_t interleavedShortFrame = new NDIlib.audio_frame_interleaved_16s_t()
+                {
+                    sample_rate = audioSampleRate,
+                    no_channels = audioNumChannels,
+                    no_samples = numSamples,
+                    p_data = interleavedHandle.AddrOfPinnedObject()
+                };
+
+                sendInstanceLock.EnterReadLock();
+
+                // Send the interleaved frame.
+                if (sendInstancePtr != IntPtr.Zero && !IsSendPaused)
+                    NDIlib.util_send_send_audio_interleaved_16s(sendInstancePtr, ref interleavedShortFrame);
+
+                sendInstanceLock.ExitReadLock();
+            }
+            else if (audioSampleSizeInBytes == 4)
+            {
+                // make an temporary interleaved NDI audio frame around the received samples
+                NDIlib.audio_frame_interleaved_32f_t interleavedFloatFrame = new NDIlib.audio_frame_interleaved_32f_t()
+                {
+                    sample_rate = audioSampleRate,
+                    no_channels = audioNumChannels,
+                    no_samples = numSamples,
+                    p_data = interleavedHandle.AddrOfPinnedObject()
+                };
+
+                sendInstanceLock.EnterReadLock();
+
+                // Send the interleaved frame.
+                if (sendInstancePtr != IntPtr.Zero && !IsSendPaused)
+                    NDIlib.util_send_send_audio_interleaved_32f(sendInstancePtr, ref interleavedFloatFrame);
+
+                sendInstanceLock.ExitReadLock();
+            }
+            else
+            {
+                System.Diagnostics.Debug.Assert(false, "Unexpected audio sample size.");
+            }
+
+            // release the GC pinning of the byte[]'s
+            interleavedHandle.Free();
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void NotifyPropertyChanged(String info)
@@ -148,7 +259,7 @@ namespace NewTek.NDI.WPF
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(info));
             }
-        }        
+        }
 
         public NdiSendContainer()
         {
@@ -159,16 +270,7 @@ namespace NewTek.NDI.WPF
             sendThread = new Thread(SendThreadProc) { IsBackground = true, Name = "WpfNdiSendThread" };
             sendThread.Start();
 
-            // CompositionTarget.Rendering += OnCompositionTargetRendering ;
-
-            // Not required, but "correct". (see the SDK documentation)
-            if (!NDIlib.initialize())
-            {
-                // Cannot run NDI. Most likely because the CPU is not sufficient (see SDK documentation).
-                // you can check this directly with a call to NDIlib.is_supported_CPU()
-                MessageBox.Show("Cannot run NDI");
-            }
-            
+            CompositionTarget.Rendering += OnCompositionTargetRendering;
         }
 
         public void Dispose()
@@ -177,7 +279,7 @@ namespace NewTek.NDI.WPF
             GC.SuppressFinalize(this);
         }
 
-        ~NdiSendContainer() 
+        ~NdiSendContainer()
         {
             Dispose(false);
         }
@@ -186,6 +288,21 @@ namespace NewTek.NDI.WPF
         {
             if (!_disposed)
             {
+                // clean up the audio capture if needed
+                if (audioCap != null)
+                {
+                    audioCap.StopRecording();
+
+                    // have to let it stop
+                    while (audioCap.CaptureState != NAudio.CoreAudioApi.CaptureState.Stopped)
+                    {
+                        Thread.Sleep(10);
+                    }
+
+                    audioCap.Dispose();
+                    audioCap = null;
+                }
+
                 if (disposing)
                 {
                     // tell the thread to exit
@@ -211,28 +328,25 @@ namespace NewTek.NDI.WPF
 
                     pendingFrames.Dispose();
                 }
-                
+
                 // Destroy the NDI sender
                 if (sendInstancePtr != IntPtr.Zero)
                 {
                     NDIlib.send_destroy(sendInstancePtr);
-
                     sendInstancePtr = IntPtr.Zero;
                 }
 
-                // Not required, but "correct". (see the SDK documentation)
-                NDIlib.destroy();
+                if (sendInstanceLock != null)
+                {
+                    sendInstanceLock.Dispose();
+                    sendInstanceLock = null;
+                }
 
                 _disposed = true;
             }
         }
 
         private bool _disposed = false;
-        
-        public void requestFrameUpdate()
-        {
-            OnCompositionTargetRendering(null, null);
-        }
 
         private void OnCompositionTargetRendering(object sender, EventArgs e)
         {
@@ -273,7 +387,7 @@ namespace NewTek.NDI.WPF
             stride = (xres * 32/*BGRA bpp*/ + 7) / 8;
             bufferSize = yres * stride;
             aspectRatio = (float)xres / (float)yres;
-            
+
             // allocate some memory for a video buffer
             IntPtr bufferPtr = Marshal.AllocHGlobal(bufferSize);
 
@@ -317,25 +431,27 @@ namespace NewTek.NDI.WPF
             // add it to the output queue
             AddFrame(videoFrame);
         }
-        
+
         private static void OnNdiSenderPropertyChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             NdiSendContainer s = sender as NdiSendContainer;
             if (s != null)
                 s.InitializeNdi();
         }
-        
+
         private void InitializeNdi()
         {
             if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(this))
                 return;
 
-            Monitor.Enter(sendInstanceLock);
-
+            sendInstanceLock.EnterWriteLock();
             {
                 // we need a name
                 if (String.IsNullOrEmpty(NdiName))
+                {
+                    sendInstanceLock.ExitWriteLock();
                     return;
+                }
 
                 // re-initialize?
                 if (sendInstancePtr != IntPtr.Zero)
@@ -380,12 +496,10 @@ namespace NewTek.NDI.WPF
                 // free the strings we allocated
                 Marshal.FreeHGlobal(sourceNamePtr);
                 Marshal.FreeHGlobal(groupsNamePtr);
-
-                // unlock
-                Monitor.Exit(sendInstanceLock);
             }
+            sendInstanceLock.ExitWriteLock();
         }
-        
+
         // the receive thread runs though this loop until told to exit
         private void SendThreadProc()
         {
@@ -399,17 +513,18 @@ namespace NewTek.NDI.WPF
 
             while (!exitThread)
             {
-                if (Monitor.TryEnter(sendInstanceLock))
+
+                if (sendInstanceLock.TryEnterReadLock(0))
                 {
                     // if this is not here, then we must be being reconfigured
                     if (sendInstancePtr == null)
                     {
                         // unlock
-                        Monitor.Exit(sendInstanceLock);
-                        
+                        sendInstanceLock.ExitReadLock();
+
                         // give up some time
                         Thread.Sleep(20);
-                        
+
                         // loop again
                         continue;
                     }
@@ -448,7 +563,7 @@ namespace NewTek.NDI.WPF
                     }
 
                     // unlock
-                    Monitor.Exit(sendInstanceLock);
+                    sendInstanceLock.ExitReadLock();
                 }
                 else
                 {
@@ -495,7 +610,7 @@ namespace NewTek.NDI.WPF
             return true;
         }
 
-        private Object sendInstanceLock = new Object();
+        private ReaderWriterLockSlim sendInstanceLock = new ReaderWriterLockSlim();
         private IntPtr sendInstancePtr = IntPtr.Zero;
 
         RenderTargetBitmap targetBitmap = null;
@@ -519,5 +634,16 @@ namespace NewTek.NDI.WPF
 
         // a safe value at the expense of CPU cycles
         bool unPremultiply = true;
+
+        // should we send system audio with the video?
+        bool sendSystemAudio = false;
+
+        // a capture device to grab system audio
+        WasapiLoopbackCapture audioCap = null;
+
+        // basic description of the audio stream
+        int audioSampleRate = 48000;
+        int audioSampleSizeInBytes = 4;
+        int audioNumChannels = 2;
     }
 }
