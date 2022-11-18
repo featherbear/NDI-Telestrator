@@ -45,18 +45,17 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>x64</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
-    <DebugSymbols>true</DebugSymbols>
+    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>
-    </StartupObject>
+    <StartupObject>NDI_Telestrator.App</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -165,16 +164,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ContentWithTargetPath Include="lib\Processing.NDI.Lib.x64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>Processing.NDI.Lib.x64.dll</TargetPath>
-    </ContentWithTargetPath>
-    <ContentWithTargetPath Include="lib\Processing.NDI.Lib.x86.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>Processing.NDI.Lib.x86.dll</TargetPath>
-    </ContentWithTargetPath>
-  </ItemGroup>
-  <ItemGroup>
+    <PackageReference Include="Costura.Fody">
+      <Version>5.7.0</Version>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="MahApps.Metro">
       <Version>2.4.5</Version>
     </PackageReference>
@@ -191,6 +184,14 @@
       <Name>NDILibDotNet2</Name>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Costura32\Processing.NDI.Lib.x86.dll" />
+    <EmbeddedResource Include="Costura64\Processing.NDI.Lib.x64.dll" />
+    <Resource Include="FodyWeavers.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="lib\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
