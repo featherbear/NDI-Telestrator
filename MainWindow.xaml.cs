@@ -122,7 +122,7 @@ namespace NDI_Telestrator
 
         public ICommand handleSelectThickness
         {
-            get => new SimpleCommand(o => InkControls.setPenThickness(double.Parse((string)o)));
+            get => new SimpleCommand(o => InkControls.setPenThickness(double.Parse((string)o, System.Globalization.CultureInfo.InvariantCulture)));
         }
 
         #endregion
